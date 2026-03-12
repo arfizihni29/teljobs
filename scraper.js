@@ -7,16 +7,16 @@ puppeteer.use(StealthPlugin());
 
 const TARGET_URLS = [
     // Social Media
-    "https://glints.com/id/opportunities/jobs/explore?keyword=social+media&country=ID&locationId=a6f7a20f-7172-4436-a418-afc91020ba0f&locationName=Medan%2C+Sumatera+Utara&lowestLocationLevel=3&page=1",
-    "https://glints.com/id/opportunities/jobs/explore?keyword=social+media&country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&page=1",
+    "https://glints.com/id/opportunities/jobs/explore?keyword=social+media&country=ID&locationId=a6f7a20f-7172-4436-a418-afc91020ba0f&locationName=Medan%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
+    "https://glints.com/id/opportunities/jobs/explore?keyword=social+media&country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
     // Marketing
-    "https://glints.com/id/opportunities/jobs/explore?keyword=marketing&country=ID&locationId=a6f7a20f-7172-4436-a418-afc91020ba0f&locationName=Medan%2C+Sumatera+Utara&lowestLocationLevel=3&page=1",
-    "https://glints.com/id/opportunities/jobs/explore?keyword=Staff+Marketing&country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&page=1",
+    "https://glints.com/id/opportunities/jobs/explore?keyword=marketing&country=ID&locationId=a6f7a20f-7172-4436-a418-afc91020ba0f&locationName=Medan%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
+    "https://glints.com/id/opportunities/jobs/explore?keyword=Staff+Marketing&country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
     // IT
-    "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationId=a6f7a20f-7172-4436-a418-afc91020ba0f&locationName=Medan%2C+Sumatera+Utara&lowestLocationLevel=3&page=1",
-    "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&page=1",
+    "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationId=a6f7a20f-7172-4436-a418-afc91020ba0f&locationName=Medan%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
+    "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
     // Office Boy
-    "https://glints.com/id/opportunities/jobs/explore?keyword=Office+Boy+%2F+Office+Girl&country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&page=1",
+    "https://glints.com/id/opportunities/jobs/explore?keyword=Office+Boy+%2F+Office+Girl&country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
     // JobStreet Medan Terbaru
     "https://id.jobstreet.com/id/jobs/in-Medan-Sumatera-Utara?sortmode=listeddate",
     // Glints Medan Terbaru (sortBy=LATEST)
@@ -26,19 +26,19 @@ const TARGET_URLS = [
     // LokerMedan
     "https://lokermedan.co.id/",
     // Glints IT Sumatera Utara
-    "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&page=2",
+    "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&page=1&sortBy=LATEST",
     // Glints Marketing Sumatera Utara
-    "https://glints.com/id/opportunities/jobs/explore?keyword=MARKETING&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&page=4",
+    "https://glints.com/id/opportunities/jobs/explore?keyword=MARKETING&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&page=1&sortBy=LATEST",
     // Glints IT Remote
-    "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationName=All+Cities%2FProvinces&lowestLocationLevel=1&workArrangementOptions=%2CREMOTE&page=2",
+    "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationName=All+Cities%2FProvinces&lowestLocationLevel=1&workArrangementOptions=%2CREMOTE&page=1&sortBy=LATEST",
     // Glints Sumatera Utara Remote
-    "https://glints.com/id/opportunities/jobs/explore?country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&workArrangementOptions=REMOTE",
+    "https://glints.com/id/opportunities/jobs/explore?country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&workArrangementOptions=REMOTE&sortBy=LATEST",
     // JobStreet ICT Medan
-    "https://id.jobstreet.com/id/jobs-in-information-communication-technology/in-Medan-Sumatera-Utara",
+    "https://id.jobstreet.com/id/jobs-in-information-communication-technology/in-Medan-Sumatera-Utara?sortmode=listeddate",
     // JobStreet ICT Sumatera Utara
-    "https://id.jobstreet.com/id/jobs-in-information-communication-technology/in-Sumatera-Utara",
+    "https://id.jobstreet.com/id/jobs-in-information-communication-technology/in-Sumatera-Utara?sortmode=listeddate",
     // JobStreet ICT Remote
-    "https://id.jobstreet.com/id/jobs-in-information-communication-technology/remote",
+    "https://id.jobstreet.com/id/jobs-in-information-communication-technology/remote?sortmode=listeddate",
     // JobStreet Purchasing Medan
     "https://id.jobstreet.com/id/Purchasing-jobs/in-Medan-Sumatera-Utara?sortmode=listeddate",
     // Loker.id IT Sumatera Utara
@@ -65,17 +65,22 @@ function isFresh(text) {
     if (lower.includes("baru saja") || lower.includes("menit") || lower.includes("jam") || lower.includes("just now") || lower.includes("minutes") || lower.includes("hours")) {
         return true;
     }
+    
+    // Check for short format like "2h ago", "10m ago"
+    if (lower.match(/\d+\s*(h|m)\b\s*ago/)) {
+        return true;
+    }
 
     // Check days
-    // Matches "1 hari", "2 days", "3 hari yang lalu", etc.
-    const dayMatch = lower.match(/(\d+)\s*(hari|day)/);
+    // Matches "1 hari", "2 days", "3 hari yang lalu", "2d ago", etc.
+    const dayMatch = lower.match(/(\d+)\s*(hari|day|d\s*ago)/);
     if (dayMatch) {
         const days = parseInt(dayMatch[1]);
         return days <= 3; // Limit 3 days
     }
 
     // "minggu" or "bulan" -> Old
-    if (lower.includes("minggu") || lower.includes("week") || lower.includes("bulan") || lower.includes("month")) {
+    if (lower.includes("minggu") || lower.includes("week") || lower.includes("bulan") || lower.includes("month") || lower.match(/\d+\s*(w|mo)\b\s*ago/)) {
         return false;
     }
 
