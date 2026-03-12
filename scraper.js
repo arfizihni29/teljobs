@@ -488,9 +488,26 @@ const HISTORY_FILE = 'processed_jobs.json';
                             lastNotified: now.toISOString()
                         });
 
+                        // Check if it's an IT job based on title
+                        // Comprehensive IT Keywords (Software, Infra, Hardware, Data, Creative/Digital)
+                        const itKeywords = [
+                            'IT', 'Programmer', 'Developer', 'Software', 'Frontend', 'Backend', 'Fullstack',
+                            'Data', 'Network', 'Networking', 'Jaringan', 'System', 'DevOps', 'Cloud', 'AWS', 'Azure',
+                            'UI', 'UX', 'Web', 'Mobile', 'Android', 'iOS', 'Flutter', 'React', 'Node', 'PHP', 'Laravel', 
+                            'WordPress', 'CMS', 'SEO', 'Hardware', 'Teknisi Komputer', 'Computer', 'Support', 'Helpdesk', 
+                            'CCTV', 'Infrastruktur', 'Information Technology', 'Security', 'Cyber', 'QA', 'Tester', 'Game'
+                        ].join('|');
+                        const isItJob = new RegExp(itKeywords, 'i').test(job.title);
+
                         // Accumulate Notification
                         console.log(`Adding to batch for: ${job.title} at ${job.company}`);
-                        batchedMessage += `✅ <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>\n\n`;
+                        
+                        if (isItJob) {
+                            batchedMessage += `🚨 <b>[URGENT: LOKER IT]</b> 🚨\n💻 <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>\n\n`;
+                        } else {
+                            batchedMessage += `✅ <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>\n\n`;
+                        }
+                        
                         jobsInBatch++;
                         notificationsSent++;
                         totalNotificationsSent++;
