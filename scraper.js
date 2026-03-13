@@ -46,7 +46,9 @@ const TARGET_URLS = [
     // Loker.id Sumatera Utara (Semua)
     "https://www.loker.id/lokasi-pekerjaan/sumatera-utara",
     // Loker.id IT Sumatera Utara (Kategori)
-    "https://www.loker.id/lowongan-kerja/information-technology/sumatera-utara"
+    "https://www.loker.id/lowongan-kerja/information-technology/sumatera-utara",
+    // Glints Explore Deli Serdang Default
+    "https://glints.com/id/opportunities/jobs/explore?slug=indonesia%2Fsumatra-utara%2Fkab-deli-serdang&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&country=ID&filterLocationIds=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&sortBy=LATEST"
 ];
 
 const BLACKLIST_COMPANIES = ["PT ALFA SCORPII", "ALFA SCORPII"];
