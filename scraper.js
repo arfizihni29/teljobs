@@ -56,7 +56,7 @@ const BLACKLIST_COMPANIES = ["PT ALFA SCORPII", "ALFA SCORPII"];
 // Helper to delay execution
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-const MAX_NOTIFICATIONS_PER_RUN = 10;
+const MAX_NOTIFICATIONS_PER_RUN = 1000; // Increased to ensure no jobs are missed
 
 // Helper to check freshness (max 3 days)
 function isFresh(text) {
@@ -67,7 +67,7 @@ function isFresh(text) {
     if (lower.includes("baru saja") || lower.includes("menit") || lower.includes("jam") || lower.includes("just now") || lower.includes("minutes") || lower.includes("hours")) {
         return true;
     }
-    
+
     // Check for short format like "2h ago", "10m ago"
     if (lower.match(/\d+\s*(h|m)\b\s*ago/)) {
         return true;
@@ -178,9 +178,7 @@ const HISTORY_FILE = 'processed_jobs.json';
         const page = await browser.newPage();
         // Set a realistic user agent
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-
-        let totalNotificationsSent = 0;
-        let notificationsSent = 0;
+        let allNewJobsToNotify = [];
 
         for (const url of TARGET_URLS) {
             console.log(`Scraping: ${url}`);
@@ -444,21 +442,12 @@ const HISTORY_FILE = 'processed_jobs.json';
                 }
 
                 if (jobs.length === 0) {
-
                     console.log(`No jobs found on ${url}`);
                 }
 
                 console.log(`Found ${jobs.length} jobs on this page.`);
 
-                let batchedMessage = "";
-                let jobsInBatch = 0;
-
                 for (const job of jobs) {
-                    if (notificationsSent >= MAX_NOTIFICATIONS_PER_RUN) {
-                        console.log("Max notifications reached for this run.");
-                        break;
-                    }
-
                     const uniqueId = `${job.title.trim().toLowerCase()}-${job.company.trim().toLowerCase()}`;
                     const now = new Date();
                     const existingJob = processedJobs.get(uniqueId);
@@ -500,41 +489,15 @@ const HISTORY_FILE = 'processed_jobs.json';
                         const itKeywords = [
                             'IT', 'Programmer', 'Developer', 'Software', 'Frontend', 'Backend', 'Fullstack',
                             'Data', 'Network', 'Networking', 'Jaringan', 'System', 'DevOps', 'Cloud', 'AWS', 'Azure',
-                            'UI', 'UX', 'Web', 'Mobile', 'Android', 'iOS', 'Flutter', 'React', 'Node', 'PHP', 'Laravel', 
-                            'WordPress', 'CMS', 'SEO', 'Hardware', 'Teknisi Komputer', 'Computer', 'Support', 'Helpdesk', 
+                            'UI', 'UX', 'Web', 'Mobile', 'Android', 'iOS', 'Flutter', 'React', 'Node', 'PHP', 'Laravel',
+                            'WordPress', 'CMS', 'SEO', 'Hardware', 'Teknisi Komputer', 'Computer', 'Support', 'Helpdesk',
                             'CCTV', 'Infrastruktur', 'Information Technology', 'Security', 'Cyber', 'QA', 'Tester', 'Game'
                         ].join('|');
-                        const isItJob = new RegExp(itKeywords, 'i').test(job.title);
+                        job.isItJob = new RegExp(itKeywords, 'i').test(job.title);
 
-                        // Accumulate Notification
-                        console.log(`Adding to batch for: ${job.title} at ${job.company}`);
-                        
-                        if (isItJob) {
-                            batchedMessage += `🚨 <b>[URGENT: LOKER IT]</b> 🚨\n💻 <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>\n\n`;
-                        } else {
-                            batchedMessage += `✅ <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>\n\n`;
-                        }
-                        
-                        jobsInBatch++;
-                        notificationsSent++;
-                        totalNotificationsSent++;
+                        allNewJobsToNotify.push(job);
+                        console.log(`Added to notification queue: ${job.title} at ${job.company}`);
                     }
-
-                    // Send batch if it reaches 5 jobs to avoid message being too long
-                    if (jobsInBatch >= 5) {
-                        batchedMessage += `🔥 <i>#Semangat Arfi</i>`;
-                        await sendNotification(batchedMessage);
-                        batchedMessage = "";
-                        jobsInBatch = 0;
-                        await delay(2000); // Rate limit protection for Telegram
-                    }
-                }
-
-                // Send remaining jobs in the batch
-                if (jobsInBatch > 0) {
-                    batchedMessage += `🔥 <i>#Semangat Arfi</i>`;
-                    await sendNotification(batchedMessage);
-                    await delay(2000);
                 }
 
             } catch (err) {
@@ -544,9 +507,40 @@ const HISTORY_FILE = 'processed_jobs.json';
             await delay(3000); // Wait between pages
         }
 
-        if (totalNotificationsSent === 0) {
+        // --- BATCH SEND ALL NEW JOBS ---
+        if (allNewJobsToNotify.length === 0) {
             console.log("No new jobs found in this run. Sending update.");
             await sendNotification("BELUM ADA LOKER FI, KALAU SUDAH DI PANGGIL PERGI SAJA INTERVIEW FI, KALAU GAK UDAH PASTI KAU GAGAL  ");
+        } else {
+            console.log(`Processing ${allNewJobsToNotify.length} new jobs for Telegram...`);
+            let batchedMessage = "";
+            let jobsInBatch = 0;
+
+            for (const job of allNewJobsToNotify) {
+                if (job.isItJob) {
+                    batchedMessage += `🚨 <b>[URGENT: LOKER IT]</b> 🚨\n💻 <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>\n\n`;
+                } else {
+                    batchedMessage += `✅ <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>\n\n`;
+                }
+
+                jobsInBatch++;
+
+                // Send per 10 jobs
+                if (jobsInBatch >= 10) {
+                    batchedMessage += `🔥 <i>#Semangat Arfi, buktikan mereka adalah sampah</i>`;
+                    await sendNotification(batchedMessage);
+                    batchedMessage = "";
+                    jobsInBatch = 0;
+                    await delay(3500); // Wait longer between telegram batches to avoid rate limit (429)
+                }
+            }
+
+            // Send remaining jobs unbatched
+            if (jobsInBatch > 0) {
+                batchedMessage += `🔥 <i>#Semangat Arfi</i>`;
+                await sendNotification(batchedMessage);
+                await delay(2000);
+            }
         }
 
     } catch (error) {
