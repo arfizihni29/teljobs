@@ -226,14 +226,47 @@ const HISTORY_FILE = 'processed_jobs.json';
                             if (!container) return;
 
                             const companyEl = container.querySelector('a[href*="/companies/"]');
-                            let companyName = companyEl ? companyEl.innerText : "";
-
-                            // Fallback if link not found: Try to find common patterns or use specific index
-                            if (!companyName) {
-                                const lines = container.innerText.split('\n').filter(l => l.trim().length > 0);
-                                // In Glints cards, company is often after salary or 2nd/3rd line
-                                companyName = lines[2] || lines[1] || "Unknown Company";
+                            let companyName = '';
+                            
+                            // Primary: get full text from company link
+                            if (companyEl) {
+                                companyName = companyEl.textContent.trim();
                             }
+                            
+                            // Fallback: search all text nodes for something that looks like a company name
+                            if (!companyName || companyName.length < 3) {
+                                const allText = container.querySelectorAll('span, div, p, a');
+                                for (const el of allText) {
+                                    const txt = el.textContent.trim();
+                                    // Skip the job title itself, dates, locations, salary
+                                    if (txt === link.textContent.trim()) continue;
+                                    if (txt.length < 3 || txt.length > 120) continue;
+                                    if (/^\d|ago|lalu|hari|jam|menit|Rp|IDR|Gaji|tahun|bulan/i.test(txt)) continue;
+                                    // Look for company-like patterns: PT, CV, multi-word capitalized, etc.
+                                    if (/^(PT|CV|UD|Yayasan|Koperasi)\b/i.test(txt) || 
+                                        (txt.split(' ').length >= 2 && /^[A-Z]/.test(txt) && el.children.length === 0)) {
+                                        companyName = txt;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // Last resort fallback
+                            if (!companyName || companyName.length < 3) {
+                                const lines = container.innerText.split('\n').filter(l => l.trim().length > 3);
+                                // Skip first line (usually title), pick next substantial line
+                                for (let i = 1; i < lines.length; i++) {
+                                    const line = lines[i].trim();
+                                    if (line === link.textContent.trim()) continue;
+                                    if (/^\d|ago|lalu|hari|jam|menit|Rp|IDR/i.test(line)) continue;
+                                    if (line.length >= 3 && line.length <= 100) {
+                                        companyName = line;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            if (!companyName) companyName = "Unknown Company";
 
                             if (link && companyName) {
                                 extracted.push({
@@ -403,14 +436,49 @@ const HISTORY_FILE = 'processed_jobs.json';
                             // Make URL absolute
                             const absoluteUrl = href.startsWith('http') ? href : `https://www.loker.id${href.startsWith('/') ? '' : '/'}${href}`;
 
-                            // Extract company from URL slug: job-title-company-city.html
-                            const slug = href.split('/').pop().replace('.html', '');
-                            const slugParts = slug.split('-');
-                            let company = "Loker.id";
-                            // City is usually last part, company before it
-                            if (slugParts.length >= 3) {
-                                // Last part is usually city name
-                                company = slugParts.slice(-2, -1).join(' ').replace(/^\w/, c => c.toUpperCase()) || "Loker.id";
+                            // Extract company from container text or title
+                            let company = "";
+                            
+                            // Strategy 1: Look for company name in container text (often has PT/CV prefix)
+                            if (container) {
+                                const containerText = container.innerText || '';
+                                const lines = containerText.split('\n').filter(l => l.trim().length > 3);
+                                for (const line of lines) {
+                                    const trimmed = line.trim();
+                                    if (trimmed === title) continue; // skip title
+                                    if (/^(PT|CV|UD|Yayasan)\b/i.test(trimmed)) {
+                                        company = trimmed;
+                                        break;
+                                    }
+                                }
+                                // If no PT/CV found, look for any line that looks like a company
+                                if (!company) {
+                                    for (const line of lines) {
+                                        const trimmed = line.trim();
+                                        if (trimmed === title) continue;
+                                        if (trimmed.length < 4 || trimmed.length > 100) continue;
+                                        if (/lokasi|gaji|apply|selengkap|rincian|^\d/i.test(trimmed)) continue;
+                                        // Multi-word, starts with capital = likely company
+                                        if (trimmed.split(' ').length >= 2 && /^[A-Z]/.test(trimmed)) {
+                                            company = trimmed;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Strategy 2: Extract from URL slug as fallback
+                            if (!company) {
+                                const slug = href.split('/').pop().replace('.html', '');
+                                // Loker.id slugs: job-title-pt-company-name-city
+                                const ptMatch = slug.match(/-(pt|cv|ud)-(.+?)-(medan|sumatera|indonesia|jakarta|bandung)/i);
+                                if (ptMatch) {
+                                    company = (ptMatch[1] + ' ' + ptMatch[2]).replace(/-/g, ' ');
+                                    company = company.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                                } else {
+                                    // Fallback: use everything after the last known title word
+                                    company = "Loker.id";
+                                }
                             }
 
                             // Try to get details from parent container
@@ -510,9 +578,66 @@ const HISTORY_FILE = 'processed_jobs.json';
         // --- BATCH SEND ALL NEW JOBS ---
         if (allNewJobsToNotify.length === 0) {
             console.log("No new jobs found in this run. Sending update.");
-            await sendNotification("BELUM ADA LOKER FI, KALAU SUDAH DI PANGGIL PERGI SAJA INTERVIEW FI, KALAU GAK UDAH PASTI KAU GAGAL  ");
+            await sendNotification("BELUM ADA LOKER FI, KALAU SUDAH DI PANGGIL PERGI SAJA INTERVIEW FI, KALAU GAK. UDAH PASTI KAU GAGAL  ");
         } else {
+            // --- FETCH FULL JOB DESCRIPTIONS ---
+            console.log(`Fetching full HTML descriptions for ${allNewJobsToNotify.length} new jobs...`);
+            for (let i = 0; i < allNewJobsToNotify.length; i++) {
+                const job = allNewJobsToNotify[i];
+                try {
+                    const detailPage = await browser.newPage();
+                    // Speed up loading by aborting images/fonts
+                    await detailPage.setRequestInterception(true);
+                    detailPage.on('request', (req) => {
+                        if(req.resourceType() === 'image' || req.resourceType() === 'font' || req.resourceType() === 'stylesheet'){
+                            req.abort();
+                        } else {
+                            req.continue();
+                        }
+                    });
+                    
+                    await detailPage.goto(job.link, { waitUntil: 'domcontentloaded', timeout: 30000 });
+                    await delay(2000); // give SPA time to render
+                    
+                    let fullDescHtml = await detailPage.evaluate(() => {
+                        let el = document.querySelector('[data-automation="jobDescription"]');
+                        if (el) return el.innerHTML;
+                        
+                        el = document.querySelector('div[class*="JobDescription"]');
+                        if (el) return el.innerHTML;
+                        
+                        el = document.querySelector('.job-description');
+                        if (el) return el.innerHTML;
+                        
+                        el = document.querySelector('.entry-content');
+                        if (!el) el = document.querySelector('.post-content');
+                        if (el) return el.innerHTML;
+                        
+                        return null;
+                    });
+                    
+                    if (fullDescHtml && fullDescHtml.trim().length > 50) {
+                        job.details = fullDescHtml.trim();
+                    }
+                    await detailPage.close();
+                } catch (err) {
+                    console.log(`Failed to fetch full description for ${job.title}: ${err.message}`);
+                }
+            }
+
             console.log(`Processing ${allNewJobsToNotify.length} new jobs for Telegram...`);
+
+            // --- SEND TO MEDANKERJA API ---
+            try {
+                console.log("Sending jobs to MedanKerja API...");
+                // Note: Using medankerja.test as Laragon default hostname. Modify if using localhost/medankerja
+                const apiUrl = "http://medankerja.test/api/import_jobs.php?token=medanjobs_scraper_secret_2024";
+                const apiRes = await axios.post(apiUrl, allNewJobsToNotify);
+                console.log("MedanKerja Import Result:", apiRes.data);
+            } catch (err) {
+                console.error("Failed to send to MedanKerja:", err.message);
+            }
+
             let batchedMessage = "";
             let jobsInBatch = 0;
 
