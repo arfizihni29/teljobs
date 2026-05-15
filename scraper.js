@@ -93,6 +93,29 @@ async function sendTelegramMessage(message) {
     }
 }
 
+async function sendTelegramPhoto(imagePath, caption) {
+    const botToken = process.env.TELEGRAM_BOT_TOKEN || '8098362795:AAGEwJZ3mF00Jh8VQc4Q3ndh58Gn9f8O_hs';
+    const chatId = process.env.TELEGRAM_CHAT_ID;
+    
+    try {
+        const formData = new FormData();
+        formData.append('chat_id', chatId);
+        formData.append('caption', caption);
+        formData.append('parse_mode', 'HTML');
+        
+        const fileBuffer = fs.readFileSync(imagePath);
+        const blob = new Blob([fileBuffer]);
+        formData.append('photo', blob, 'screenshot.png');
+        
+        const url = `https://api.telegram.org/bot${botToken}/sendPhoto`;
+        const response = await fetch(url, { method: 'POST', body: formData });
+        const data = await response.json();
+        console.log("Telegram photo sent:", data.ok);
+    } catch (error) {
+        console.error("Failed to send Telegram photo:", error.message);
+    }
+}
+
 // Send notification to all configured channels
 async function sendNotification(message) {
     await sendTelegramMessage(message);
@@ -561,18 +584,19 @@ const HISTORY_FILE = 'processed_jobs.json';
                 const job = allNewJobsToNotify[i];
                 try {
                     const detailPage = await browser.newPage();
-                    // Speed up loading by aborting images/fonts
+                    // Let stylesheets and fonts load for better screenshot
                     await detailPage.setRequestInterception(true);
                     detailPage.on('request', (req) => {
-                        if(req.resourceType() === 'image' || req.resourceType() === 'font' || req.resourceType() === 'stylesheet'){
+                        if(req.resourceType() === 'font'){
                             req.abort();
                         } else {
                             req.continue();
                         }
                     });
                     
+                    await detailPage.setViewport({ width: 1280, height: 1024 });
                     await detailPage.goto(job.link, { waitUntil: 'domcontentloaded', timeout: 30000 });
-                    await delay(2000); // give SPA time to render
+                    await delay(3000); // give SPA time to render
                     
                     let fullDescHtml = await detailPage.evaluate(() => {
                         let el = document.querySelector('[data-automation="jobDescription"]');
@@ -594,6 +618,35 @@ const HISTORY_FILE = 'processed_jobs.json';
                     if (fullDescHtml && fullDescHtml.trim().length > 50) {
                         job.details = fullDescHtml.trim();
                     }
+
+                    // Take screenshot
+                    try {
+                        const targetSelectors = [
+                            '[data-automation="jobDescription"]',
+                            'div[class*="JobDescription"]',
+                            '.job-description',
+                            '.entry-content',
+                            '.post-content',
+                            'article',
+                            'main'
+                        ];
+                        let element = null;
+                        for (const sel of targetSelectors) {
+                            element = await detailPage.$(sel);
+                            if (element) break;
+                        }
+
+                        const imgPath = `screenshot_${i}.png`;
+                        if (element) {
+                            await element.screenshot({ path: imgPath });
+                        } else {
+                            await detailPage.screenshot({ path: imgPath }); // Viewport screenshot
+                        }
+                        job.screenshotPath = imgPath;
+                    } catch (ssErr) {
+                        console.log(`Failed to take screenshot for ${job.title}: ${ssErr.message}`);
+                    }
+
                     await detailPage.close();
                 } catch (err) {
                     console.log(`Failed to fetch full description for ${job.title}: ${err.message}`);
@@ -617,21 +670,28 @@ const HISTORY_FILE = 'processed_jobs.json';
             let jobsInBatch = 0;
 
             for (const job of allNewJobsToNotify) {
+                let caption = "";
                 if (job.isTargetJob) {
-                    batchedMessage += `🎯 <b>[LOKER MARKETING / SOCMED]</b> 🎯\n📱 <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>\n\n`;
+                    caption = `🎯 <b>[LOKER MARKETING / SOCMED]</b> 🎯\n📱 <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>`;
                 } else {
-                    batchedMessage += `✅ <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>\n\n`;
+                    caption = `✅ <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>`;
                 }
 
-                jobsInBatch++;
+                if (job.screenshotPath) {
+                    await sendTelegramPhoto(job.screenshotPath, caption);
+                    await delay(3500); // Wait between photos
+                } else {
+                    batchedMessage += caption + "\n\n";
+                    jobsInBatch++;
 
-                // Send per 10 jobs
-                if (jobsInBatch >= 10) {
-                    batchedMessage += `🔥 <i>#Semangat Arfi, buktikan mereka adalah sampah</i>`;
-                    await sendNotification(batchedMessage);
-                    batchedMessage = "";
-                    jobsInBatch = 0;
-                    await delay(3500); // Wait longer between telegram batches to avoid rate limit (429)
+                    // Send per 10 jobs
+                    if (jobsInBatch >= 10) {
+                        batchedMessage += `🔥 <i>#Semangat Arfi, buktikan mereka adalah sampah</i>`;
+                        await sendNotification(batchedMessage);
+                        batchedMessage = "";
+                        jobsInBatch = 0;
+                        await delay(3500); // Wait longer between telegram batches to avoid rate limit (429)
+                    }
                 }
             }
 
@@ -640,6 +700,13 @@ const HISTORY_FILE = 'processed_jobs.json';
                 batchedMessage += `🔥 <i>#Semangat Arfi</i>`;
                 await sendNotification(batchedMessage);
                 await delay(2000);
+            }
+
+            // Cleanup screenshots
+            for (const job of allNewJobsToNotify) {
+                if (job.screenshotPath && fs.existsSync(job.screenshotPath)) {
+                    fs.unlinkSync(job.screenshotPath);
+                }
             }
         }
 
