@@ -19,7 +19,10 @@ const TARGET_URLS = [
     "https://id.jobstreet.com/id/Social-Media-jobs/in-Medan-Sumatera-Utara?sortmode=listeddate",
     // Loker.id Marketing & Social Media Sumatera Utara
     "https://www.loker.id/cari-lowongan-kerja?q=marketing&lokasi=sumatera-utara",
-    "https://www.loker.id/cari-lowongan-kerja?q=social+media&lokasi=sumatera-utara"
+    "https://www.loker.id/cari-lowongan-kerja?q=social+media&lokasi=sumatera-utara",
+    // Pintarnya Marketing & Social Media Medan
+    "https://pintarnya.com/q-marketing-l-kota-medan-lowongan",
+    "https://pintarnya.com/q-social-media-l-kota-medan-lowongan"
 ];
 
 const BLACKLIST_COMPANIES = ["PT ALFA SCORPII", "ALFA SCORPII"];
@@ -35,7 +38,16 @@ function isFresh(text) {
     const lower = text.toLowerCase();
 
     // "Baru saja", "menit yang lalu", "jam yang lalu" -> Always fresh
-    if (lower.includes("baru saja") || lower.includes("menit") || lower.includes("jam") || lower.includes("just now") || lower.includes("minutes") || lower.includes("hours")) {
+    if (
+        lower.includes("baru saja") ||
+        lower.includes("baru di posting") ||
+        lower.includes("baru diposting") ||
+        lower.includes("menit") ||
+        lower.includes("jam") ||
+        lower.includes("just now") ||
+        lower.includes("minutes") ||
+        lower.includes("hours")
+    ) {
         return true;
     }
 
@@ -401,6 +413,66 @@ const HISTORY_FILE = 'processed_jobs.json';
                         });
                         return unique;
                     });
+                } else if (url.includes('pintarnya.com')) {
+                    // --- PINTARNYA SCRAPING LOGIC ---
+                    console.log("Detected Pintarnya URL");
+                    await delay(4000);
+
+                    jobs = await page.evaluate(() => {
+                        const extracted = [];
+                        const normalize = (value = "") => value.replace(/\s+/g, ' ').trim();
+                        const jobLinks = Array.from(document.querySelectorAll('a[href*="/lowongan/"]'));
+
+                        jobLinks.forEach(linkEl => {
+                            const href = linkEl.getAttribute('href');
+                            if (!href || !href.includes('/lowongan/')) return;
+
+                            const rawText = (linkEl.innerText || "").trim();
+                            if (!rawText || rawText.length < 5) return;
+
+                            const lines = rawText
+                                .split('\n')
+                                .map(line => normalize(line))
+                                .filter(Boolean);
+
+                            const title = lines[0] || normalize(linkEl.getAttribute('aria-label') || "");
+                            if (!title || title.length < 3) return;
+
+                            const ignoredLinePattern = /(hari yang lalu|jam yang lalu|menit yang lalu|baru di posting|baru diposting|kota |kab\.|provinsi|rp\s?[\d\.]|sma\/smk|diploma|s1|s2|s3|org dibutuhkan|full-time|part-time|onsite|hybrid|remote|tidak ada minimal)/i;
+
+                            let company = lines
+                                .slice(1)
+                                .find(line => /^(PT|CV|UD|Yayasan|Koperasi)\b/i.test(line)) || "";
+
+                            if (!company) {
+                                company = lines
+                                    .slice(1)
+                                    .find(line => !ignoredLinePattern.test(line) && line.length >= 3 && line.length <= 100) || "Pintarnya";
+                            }
+
+                            const absoluteUrl = href.startsWith('http')
+                                ? href
+                                : `https://pintarnya.com${href.startsWith('/') ? '' : '/'}${href}`;
+
+                            extracted.push({
+                                title: title,
+                                company: company,
+                                link: absoluteUrl,
+                                details: lines.join('\n')
+                            });
+                        });
+
+                        // Filter duplicates by link
+                        const unique = [];
+                        const seen = new Set();
+                        extracted.forEach(item => {
+                            if (!seen.has(item.link)) {
+                                seen.add(item.link);
+                                unique.push(item);
+                            }
+                        });
+                        return unique;
+                    });
                 } else if (url.includes('loker.id')) {
                     // --- LOKER.ID SCRAPING LOGIC ---
                     console.log("Detected Loker.id URL");
@@ -432,6 +504,7 @@ const HISTORY_FILE = 'processed_jobs.json';
 
                             // Extract company from container text or title
                             let company = "";
+                            const container = linkEl.closest('.card, .job-item, article, div[class*="item"], div[class*="col"], div[class*="list"], tr, li');
                             
                             // Strategy 1: Look for company name in container text (often has PT/CV prefix)
                             if (container) {
@@ -477,7 +550,6 @@ const HISTORY_FILE = 'processed_jobs.json';
 
                             // Try to get details from parent container
                             let details = "";
-                            const container = linkEl.closest('.card, .job-item, article, div[class*="item"], div[class*="col"], div[class*="list"], tr, li');
                             if (container) {
                                 details = container.innerText.trim();
                             }
@@ -599,6 +671,28 @@ const HISTORY_FILE = 'processed_jobs.json';
                     await delay(3000); // give SPA time to render
                     
                     let fullDescHtml = await detailPage.evaluate(() => {
+                        // Pintarnya: detail is mostly rendered as plain text blocks.
+                        if (location.hostname.includes('pintarnya.com') && location.pathname.includes('/lowongan/')) {
+                            const candidates = Array.from(document.querySelectorAll('main, article, section, div'));
+                            let bestEl = null;
+                            let bestScore = 0;
+
+                            candidates.forEach(node => {
+                                const text = (node.innerText || '').trim();
+                                if (!text.includes('Persyaratan Umum') || !text.includes('Deskripsi Pekerjaan')) return;
+
+                                const rect = node.getBoundingClientRect();
+                                const score = (rect.width * Math.min(rect.height, 5000)) + text.length;
+
+                                if (score > bestScore) {
+                                    bestScore = score;
+                                    bestEl = node;
+                                }
+                            });
+
+                            if (bestEl) return bestEl.innerText;
+                        }
+
                         let el = document.querySelector('[data-automation="jobDescription"]');
                         if (el) return el.innerHTML;
                         
@@ -637,7 +731,9 @@ const HISTORY_FILE = 'processed_jobs.json';
                         }
 
                         const imgPath = `screenshot_${i}.png`;
-                        if (element) {
+                        if (job.link.includes('pintarnya.com/lowongan/')) {
+                            await detailPage.screenshot({ path: imgPath, fullPage: true });
+                        } else if (element) {
                             await element.screenshot({ path: imgPath });
                         } else {
                             await detailPage.screenshot({ path: imgPath }); // Viewport screenshot
