@@ -6,49 +6,22 @@ const axios = require('axios');
 puppeteer.use(StealthPlugin());
 
 const TARGET_URLS = [
-    // Social Media
+    // Social Media Glints
     "https://glints.com/id/opportunities/jobs/explore?keyword=social+media&country=ID&locationId=a6f7a20f-7172-4436-a418-afc91020ba0f&locationName=Medan%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
     "https://glints.com/id/opportunities/jobs/explore?keyword=social+media&country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
-    // Marketing
+    "https://glints.com/id/opportunities/jobs/explore?keyword=social+media&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&page=1&sortBy=LATEST",
+    // Marketing Glints
     "https://glints.com/id/opportunities/jobs/explore?keyword=marketing&country=ID&locationId=a6f7a20f-7172-4436-a418-afc91020ba0f&locationName=Medan%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
     "https://glints.com/id/opportunities/jobs/explore?keyword=Staff+Marketing&country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
-    // IT
-    "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationId=a6f7a20f-7172-4436-a418-afc91020ba0f&locationName=Medan%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
-    "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
-    // Office Boy
-    "https://glints.com/id/opportunities/jobs/explore?keyword=Office+Boy+%2F+Office+Girl&country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
-    // JobStreet Medan Terbaru
-    "https://id.jobstreet.com/id/jobs/in-Medan-Sumatera-Utara?sortmode=listeddate",
-    // Glints Medan Terbaru (sortBy=LATEST)
-    "https://glints.com/id/opportunities/jobs/explore?country=ID&locationId=a6f7a20f-7172-4436-a418-afc91020ba0f&locationName=Medan%2C+Sumatera+Utara&lowestLocationLevel=3&sortBy=LATEST",
-    // Glints Deli Serdang Terbaru (sortBy=LATEST)
-    "https://glints.com/id/opportunities/jobs/explore?country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&sortBy=LATEST",
-    // LokerMedan
-    "https://lokermedan.co.id/",
-    // Glints IT Sumatera Utara
-    "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&page=1&sortBy=LATEST",
-    // Glints Marketing Sumatera Utara
     "https://glints.com/id/opportunities/jobs/explore?keyword=MARKETING&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&page=1&sortBy=LATEST",
-    // Glints IT Remote
-    "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationName=All+Cities%2FProvinces&lowestLocationLevel=1&workArrangementOptions=%2CREMOTE&page=1&sortBy=LATEST",
-    // Glints Sumatera Utara Remote
-    "https://glints.com/id/opportunities/jobs/explore?country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&workArrangementOptions=REMOTE&sortBy=LATEST",
-    // JobStreet ICT Medan
-    "https://id.jobstreet.com/id/jobs-in-information-communication-technology/in-Medan-Sumatera-Utara?sortmode=listeddate",
-    // JobStreet ICT Sumatera Utara
-    "https://id.jobstreet.com/id/jobs-in-information-communication-technology/in-Sumatera-Utara?sortmode=listeddate",
-    // JobStreet ICT Remote
-    "https://id.jobstreet.com/id/jobs-in-information-communication-technology/remote?sortmode=listeddate",
-    // JobStreet Purchasing Medan
-    "https://id.jobstreet.com/id/Purchasing-jobs/in-Medan-Sumatera-Utara?sortmode=listeddate",
-    // Loker.id IT Sumatera Utara
-    "https://www.loker.id/cari-lowongan-kerja?q=it&lokasi=sumatera-utara",
-    // Loker.id Sumatera Utara (Semua)
-    "https://www.loker.id/lokasi-pekerjaan/sumatera-utara",
-    // Loker.id IT Sumatera Utara (Kategori)
-    "https://www.loker.id/lowongan-kerja/information-technology/sumatera-utara",
-    // Glints Explore Deli Serdang Default
-    "https://glints.com/id/opportunities/jobs/explore?slug=indonesia%2Fsumatra-utara%2Fkab-deli-serdang&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&country=ID&filterLocationIds=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&sortBy=LATEST"
+    // LokerMedan (will be filtered by keyword in code)
+    "https://lokermedan.co.id/",
+    // JobStreet Marketing & Social Media Medan
+    "https://id.jobstreet.com/id/Marketing-jobs/in-Medan-Sumatera-Utara?sortmode=listeddate",
+    "https://id.jobstreet.com/id/Social-Media-jobs/in-Medan-Sumatera-Utara?sortmode=listeddate",
+    // Loker.id Marketing & Social Media Sumatera Utara
+    "https://www.loker.id/cari-lowongan-kerja?q=marketing&lokasi=sumatera-utara",
+    "https://www.loker.id/cari-lowongan-kerja?q=social+media&lokasi=sumatera-utara"
 ];
 
 const BLACKLIST_COMPANIES = ["PT ALFA SCORPII", "ALFA SCORPII"];
@@ -107,7 +80,7 @@ async function sendFonnteMessage(message) {
 }
 
 async function sendTelegramMessage(message) {
-    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const botToken = process.env.TELEGRAM_BOT_TOKEN || '8098362795:AAGEwJZ3mF00Jh8VQc4Q3ndh58Gn9f8O_hs';
     const chatId = process.env.TELEGRAM_CHAT_ID;
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
     try {
@@ -552,16 +525,20 @@ const HISTORY_FILE = 'processed_jobs.json';
                             lastNotified: now.toISOString()
                         });
 
-                        // Check if it's an IT job based on title
-                        // Comprehensive IT Keywords (Software, Infra, Hardware, Data, Creative/Digital)
-                        const itKeywords = [
-                            'IT', 'Programmer', 'Developer', 'Software', 'Frontend', 'Backend', 'Fullstack',
-                            'Data', 'Network', 'Networking', 'Jaringan', 'System', 'DevOps', 'Cloud', 'AWS', 'Azure',
-                            'UI', 'UX', 'Web', 'Mobile', 'Android', 'iOS', 'Flutter', 'React', 'Node', 'PHP', 'Laravel',
-                            'WordPress', 'CMS', 'SEO', 'Hardware', 'Teknisi Komputer', 'Computer', 'Support', 'Helpdesk',
-                            'CCTV', 'Infrastruktur', 'Information Technology', 'Security', 'Cyber', 'QA', 'Tester', 'Game'
+                        // Filter for Social Media and Marketing
+                        const targetKeywords = [
+                            'Social Media', 'Sosmed', 'Sosial Media', 'Marketing', 'Pemasaran', 'Digital Marketing', 
+                            'Content Creator', 'Kreator Konten', 'Copywriter', 'SEO', 'Ads', 'Campaign', 'Brand', 'Public Relation', 'PR', 'KOL'
                         ].join('|');
-                        job.isItJob = new RegExp(itKeywords, 'i').test(job.title);
+                        
+                        const isTargetJob = new RegExp(targetKeywords, 'i').test(job.title) || new RegExp(targetKeywords, 'i').test(job.details);
+
+                        if (!isTargetJob) {
+                            console.log(`Skipped (Not Social Media/Marketing): ${job.title} - ${job.company}`);
+                            continue;
+                        }
+
+                        job.isTargetJob = true;
 
                         allNewJobsToNotify.push(job);
                         console.log(`Added to notification queue: ${job.title} at ${job.company}`);
@@ -642,8 +619,8 @@ const HISTORY_FILE = 'processed_jobs.json';
             let jobsInBatch = 0;
 
             for (const job of allNewJobsToNotify) {
-                if (job.isItJob) {
-                    batchedMessage += `🚨 <b>[URGENT: LOKER IT]</b> 🚨\n💻 <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>\n\n`;
+                if (job.isTargetJob) {
+                    batchedMessage += `🎯 <b>[LOKER MARKETING / SOCMED]</b> 🎯\n📱 <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>\n\n`;
                 } else {
                     batchedMessage += `✅ <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>\n\n`;
                 }
