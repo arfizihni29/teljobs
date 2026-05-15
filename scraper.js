@@ -29,7 +29,7 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const MAX_NOTIFICATIONS_PER_RUN = 1000; // Increased to ensure no jobs are missed
 
-// Helper to check freshness (max 3 days)
+// Helper to check freshness (max 1 hari)
 function isFresh(text) {
     if (!text) return false;
     const lower = text.toLowerCase();
@@ -49,7 +49,7 @@ function isFresh(text) {
     const dayMatch = lower.match(/(\d+)\s*(hari|day|d\s*ago)/);
     if (dayMatch) {
         const days = parseInt(dayMatch[1]);
-        return days <= 3; // Limit 3 days
+        return days <= 1; // Limit 1 hari
     }
 
     // "minggu" or "bulan" -> Old
