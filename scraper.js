@@ -14,8 +14,6 @@ const TARGET_URLS = [
     "https://glints.com/id/opportunities/jobs/explore?keyword=marketing&country=ID&locationId=a6f7a20f-7172-4436-a418-afc91020ba0f&locationName=Medan%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
     "https://glints.com/id/opportunities/jobs/explore?keyword=Staff+Marketing&country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
     "https://glints.com/id/opportunities/jobs/explore?keyword=MARKETING&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&page=1&sortBy=LATEST",
-    // LokerMedan (will be filtered by keyword in code)
-    "https://lokermedan.co.id/",
     // JobStreet Marketing & Social Media Medan
     "https://id.jobstreet.com/id/Marketing-jobs/in-Medan-Sumatera-Utara?sortmode=listeddate",
     "https://id.jobstreet.com/id/Social-Media-jobs/in-Medan-Sumatera-Utara?sortmode=listeddate",
