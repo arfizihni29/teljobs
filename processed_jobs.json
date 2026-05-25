@@ -1,104 +1,5 @@
 [
   {
-    "id": "system analyst intern-pt suitmedia kreasi indonesia",
-    "title": "System Analyst Intern",
-    "company": "PT Suitmedia Kreasi Indonesia",
-    "firstSeen": "2026-05-07T06:04:05.379Z",
-    "lastSeen": "2026-05-14T10:34:24.583Z",
-    "seenCount": 80,
-    "lastNotified": "2026-05-07T06:04:05.379Z"
-  },
-  {
-    "id": "internal product engineer / full stack developer-wav",
-    "title": "Internal Product Engineer / Full Stack Developer",
-    "company": "WAV",
-    "firstSeen": "2026-05-07T06:05:09.532Z",
-    "lastSeen": "2026-05-14T10:35:29.364Z",
-    "seenCount": 79,
-    "lastNotified": "2026-05-07T06:05:09.532Z"
-  },
-  {
-    "id": "fullstack ecommerce developer (shopify specialist)-pt ibmc business group",
-    "title": "Fullstack Ecommerce Developer (Shopify Specialist)",
-    "company": "PT IBMC Business Group",
-    "firstSeen": "2026-05-07T06:05:09.532Z",
-    "lastSeen": "2026-05-14T10:35:29.364Z",
-    "seenCount": 79,
-    "lastNotified": "2026-05-07T06:05:09.532Z"
-  },
-  {
-    "id": "senior ai & data engineer-vamstar",
-    "title": "Senior AI & Data Engineer",
-    "company": "Vamstar",
-    "firstSeen": "2026-05-07T06:05:09.532Z",
-    "lastSeen": "2026-05-12T10:35:30.593Z",
-    "seenCount": 59,
-    "lastNotified": "2026-05-07T06:05:09.532Z"
-  },
-  {
-    "id": "staff it-pt. bali sanitya global",
-    "title": "Staff IT",
-    "company": "PT. BALI SANITYA GLOBAL",
-    "firstSeen": "2026-05-07T06:05:09.532Z",
-    "lastSeen": "2026-05-07T10:35:18.336Z",
-    "seenCount": 10,
-    "lastNotified": "2026-05-07T06:05:09.532Z"
-  },
-  {
-    "id": "staff surveyor & general affair-pt. intraco agroindustry",
-    "title": "Staff Surveyor & General Affair",
-    "company": "PT. Intraco Agroindustry",
-    "firstSeen": "2026-05-07T06:05:27.732Z",
-    "lastSeen": "2026-05-14T10:35:47.350Z",
-    "seenCount": 72,
-    "lastNotified": "2026-05-07T06:05:27.732Z"
-  },
-  {
-    "id": "contract specialist - palm-cargill",
-    "title": "Contract Specialist - Palm",
-    "company": "Cargill",
-    "firstSeen": "2026-05-07T06:05:27.732Z",
-    "lastSeen": "2026-05-13T10:35:36.779Z",
-    "seenCount": 70,
-    "lastNotified": "2026-05-07T06:05:27.732Z"
-  },
-  {
-    "id": "sales properti-pt. bersama rezeki makmur (ciptaland development)",
-    "title": "Sales Properti",
-    "company": "PT. Bersama Rezeki Makmur (Ciptaland Development)",
-    "firstSeen": "2026-05-07T06:31:05.893Z",
-    "lastSeen": "2026-05-20T09:31:03.604Z",
-    "seenCount": 215,
-    "lastNotified": "2026-05-07T06:31:05.893Z"
-  },
-  {
-    "id": "marketing-pt. grha shafa medika",
-    "title": "Marketing",
-    "company": "PT. Grha Shafa Medika",
-    "firstSeen": "2026-05-07T06:31:22.050Z",
-    "lastSeen": "2026-05-20T09:32:10.149Z",
-    "seenCount": 306,
-    "lastNotified": "2026-05-07T06:31:22.050Z"
-  },
-  {
-    "id": "staff tax-ocean centra furnindo",
-    "title": "STAFF TAX",
-    "company": "Ocean Centra Furnindo",
-    "firstSeen": "2026-05-07T06:32:45.332Z",
-    "lastSeen": "2026-05-07T09:03:02.830Z",
-    "seenCount": 7,
-    "lastNotified": "2026-05-07T06:32:45.332Z"
-  },
-  {
-    "id": "host live-sunshine academy indonesia",
-    "title": "Host Live",
-    "company": "Sunshine Academy Indonesia",
-    "firstSeen": "2026-05-07T06:32:45.333Z",
-    "lastSeen": "2026-05-12T08:32:42.944Z",
-    "seenCount": 14,
-    "lastNotified": "2026-05-07T06:32:45.333Z"
-  },
-  {
     "id": "social media specialist-pt. one universe indonesia",
     "title": "Social Media Specialist",
     "company": "PT. One Universe Indonesia",
@@ -8248,8 +8149,8 @@
     "title": "instruktur robotik",
     "company": "PT Solusi Nusantara",
     "firstSeen": "2026-05-25T03:58:34.118Z",
-    "lastSeen": "2026-05-25T17:11:52.689Z",
-    "seenCount": 8,
+    "lastSeen": "2026-05-25T18:14:04.959Z",
+    "seenCount": 9,
     "lastNotified": "2026-05-25T03:58:34.118Z"
   },
   {
@@ -8257,8 +8158,8 @@
     "title": "IT Business Analyst",
     "company": "PT Iweka Digital Solusi",
     "firstSeen": "2026-05-25T03:58:34.118Z",
-    "lastSeen": "2026-05-25T17:11:52.689Z",
-    "seenCount": 8,
+    "lastSeen": "2026-05-25T18:14:04.959Z",
+    "seenCount": 9,
     "lastNotified": "2026-05-25T03:58:34.118Z"
   },
   {
@@ -8266,8 +8167,8 @@
     "title": "Staff IT",
     "company": "PT. Mest Indonesiy",
     "firstSeen": "2026-05-25T03:58:34.118Z",
-    "lastSeen": "2026-05-25T17:11:52.689Z",
-    "seenCount": 8,
+    "lastSeen": "2026-05-25T18:14:04.959Z",
+    "seenCount": 9,
     "lastNotified": "2026-05-25T03:58:34.118Z"
   },
   {
@@ -8275,8 +8176,8 @@
     "title": "Network Presales Engineer",
     "company": "PT. Mega Bintang Mas Indonesia",
     "firstSeen": "2026-05-25T03:58:34.119Z",
-    "lastSeen": "2026-05-25T17:11:52.689Z",
-    "seenCount": 8,
+    "lastSeen": "2026-05-25T18:14:04.959Z",
+    "seenCount": 9,
     "lastNotified": "2026-05-25T03:58:34.119Z"
   },
   {
@@ -8998,5 +8899,104 @@
     "lastSeen": "2026-05-25T17:11:06.957Z",
     "seenCount": 1,
     "lastNotified": "2026-05-25T17:11:06.957Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/branch-manager-edutech/da2959d0-5a89-4f99-8076-76fc88e385e3?utm_referrer=explore&traceinfo=da648c0c-1548-4e0f-8d5b-809f41829b54",
+    "title": "Branch Manager (Edutech)",
+    "company": "Algorithmics Global FZE",
+    "firstSeen": "2026-05-25T18:12:51.603Z",
+    "lastSeen": "2026-05-25T18:12:51.603Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-25T18:12:51.603Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/sales-project/41a13fe5-5bc2-4c33-be49-fb513872488f?utm_referrer=explore&traceinfo=da648c0c-1548-4e0f-8d5b-809f41829b54",
+    "title": "sales project",
+    "company": "PT Shihlindo Elektrik",
+    "firstSeen": "2026-05-25T18:12:51.603Z",
+    "lastSeen": "2026-05-25T18:12:51.603Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-25T18:12:51.603Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/chief-finance-accounting-tax/4d23f323-1738-43db-b0cd-1e4a97c7e9c5?utm_referrer=explore&traceinfo=da648c0c-1548-4e0f-8d5b-809f41829b54",
+    "title": "Chief Finance Accounting Tax",
+    "company": "PT Perkasa Tehnik",
+    "firstSeen": "2026-05-25T18:12:51.603Z",
+    "lastSeen": "2026-05-25T18:12:51.603Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-25T18:12:51.603Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/technical-operation-padang-panjang/662f3c1c-b73b-49bf-b781-2b00bb3cdc88?utm_referrer=explore&traceinfo=84d324a5-2ebb-494a-9c73-60c0fcedcfa8",
+    "title": "Technical Operation Padang Panjang",
+    "company": "PT Cartenz Technology Indonesia",
+    "firstSeen": "2026-05-25T18:13:04.649Z",
+    "lastSeen": "2026-05-25T18:13:04.649Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-25T18:13:04.649Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/admin/4d287e57-12ad-41c2-84b2-915ef4ac226f?utm_referrer=explore&traceinfo=bb55de34-f40f-426f-9a26-9dc3447540f9",
+    "title": "Admin",
+    "company": "GMT Specialist Sparepart Handphone",
+    "firstSeen": "2026-05-25T18:13:20.047Z",
+    "lastSeen": "2026-05-25T18:13:20.047Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-25T18:13:20.047Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/hrd-recruitment/cad2d664-7cf3-4b4f-9248-41b9deee3490?utm_referrer=explore&traceinfo=bb55de34-f40f-426f-9a26-9dc3447540f9",
+    "title": "HRD Recruitment",
+    "company": "GMT Specialist Sparepart Handphone",
+    "firstSeen": "2026-05-25T18:13:20.047Z",
+    "lastSeen": "2026-05-25T18:13:20.047Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-25T18:13:20.047Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/full-stack-developer/340610fb-225e-46f7-8ac9-53919e818240?utm_referrer=explore&traceinfo=bb55de34-f40f-426f-9a26-9dc3447540f9",
+    "title": "Full Stack Developer",
+    "company": "Baby Milano",
+    "firstSeen": "2026-05-25T18:13:20.047Z",
+    "lastSeen": "2026-05-25T18:13:20.047Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-25T18:13:20.047Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/operator-sekolah/8ccfc837-9a58-431c-bbf8-971b96c10771?utm_referrer=explore&traceinfo=bb55de34-f40f-426f-9a26-9dc3447540f9",
+    "title": "Operator Sekolah",
+    "company": "MEDAN MONTESSORI SCHOOL & YORK ACADEMY",
+    "firstSeen": "2026-05-25T18:13:20.047Z",
+    "lastSeen": "2026-05-25T18:13:20.047Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-25T18:13:20.047Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/operator-cctv/0d119c0a-1dc1-41a8-ab7a-1ea5365d2997?utm_referrer=explore&traceinfo=bb55de34-f40f-426f-9a26-9dc3447540f9",
+    "title": "OPERATOR CCTV",
+    "company": "FUNDERLAND INDONESIA",
+    "firstSeen": "2026-05-25T18:13:20.047Z",
+    "lastSeen": "2026-05-25T18:13:20.047Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-25T18:13:20.047Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/instruktur-robotik/5e6d4823-db5f-4d54-9c2f-347dc424d3d3?utm_referrer=explore&traceinfo=bb55de34-f40f-426f-9a26-9dc3447540f9",
+    "title": "INSTRUKTUR ROBOTIK",
+    "company": "PT Solusi Nusantara",
+    "firstSeen": "2026-05-25T18:13:20.047Z",
+    "lastSeen": "2026-05-25T18:13:20.047Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-25T18:13:20.047Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/admin/4d287e57-12ad-41c2-84b2-915ef4ac226f?traceinfo=bb55de34-f40f-426f-9a26-9dc3447540f9",
+    "title": "Admin",
+    "company": "GMT Specialist Sparepart Handphone",
+    "firstSeen": "2026-05-25T18:13:20.047Z",
+    "lastSeen": "2026-05-25T18:13:20.047Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-25T18:13:20.047Z"
   }
 ]
