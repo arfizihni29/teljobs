@@ -5,25 +5,16 @@ const axios = require('axios');
 
 puppeteer.use(StealthPlugin());
 
-const TARGET_URLS = [
-    // Social Media Glints
-    "https://glints.com/id/opportunities/jobs/explore?keyword=social+media&country=ID&locationId=a6f7a20f-7172-4436-a418-afc91020ba0f&locationName=Medan%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
-    "https://glints.com/id/opportunities/jobs/explore?keyword=social+media&country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
-    "https://glints.com/id/opportunities/jobs/explore?keyword=social+media&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&page=1&sortBy=LATEST",
-    // Marketing Glints
-    "https://glints.com/id/opportunities/jobs/explore?keyword=marketing&country=ID&locationId=a6f7a20f-7172-4436-a418-afc91020ba0f&locationName=Medan%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
-    "https://glints.com/id/opportunities/jobs/explore?keyword=Staff+Marketing&country=ID&locationId=3a47657b-facc-45dc-9d7f-1c6fb25f49d4&locationName=Kab.+Deli+Serdang%2C+Sumatera+Utara&lowestLocationLevel=3&page=1&sortBy=LATEST",
-    "https://glints.com/id/opportunities/jobs/explore?keyword=MARKETING&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&page=1&sortBy=LATEST",
-    // JobStreet Marketing & Social Media Medan
-    "https://id.jobstreet.com/id/Marketing-jobs/in-Medan-Sumatera-Utara?sortmode=listeddate",
-    "https://id.jobstreet.com/id/Social-Media-jobs/in-Medan-Sumatera-Utara?sortmode=listeddate",
-    // Loker.id Marketing & Social Media Sumatera Utara
-    "https://www.loker.id/cari-lowongan-kerja?q=marketing&lokasi=sumatera-utara",
-    "https://www.loker.id/cari-lowongan-kerja?q=social+media&lokasi=sumatera-utara",
-    // Pintarnya Marketing & Social Media Medan
-    "https://pintarnya.com/q-marketing-l-kota-medan-lowongan",
-    "https://pintarnya.com/q-social-media-l-kota-medan-lowongan"
-];
+const TARGET_URLS = [...new Set([
+    // Glints IT/KOMPUTER (Sumut & Sumbar)
+    "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&sortBy=LATEST",
+    "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationId=16cbbddf-c3fe-4ca5-a8ff-08ae52c9f085&locationName=Sumatera+Barat&lowestLocationLevel=2&sortBy=LATEST",
+    "https://glints.com/id/opportunities/jobs/explore?keyword=KOMPUTER&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&sortBy=LATEST",
+    // JobStreet IT (Sumut & Sumbar)
+    "https://id.jobstreet.com/id/IT-jobs/in-Medan-Sumatera-Utara?sortmode=ListedDate&tags=new",
+    "https://id.jobstreet.com/id/IT-jobs/in-Sumatera-Barat?sortmode=ListedDate&tags=new",
+    "https://id.jobstreet.com/id/IT-jobs-in-information-communication-technology/in-Sumatera-Utara?sortmode=ListedDate"
+])];
 
 const BLACKLIST_COMPANIES = ["PT ALFA SCORPII", "ALFA SCORPII"];
 
@@ -31,10 +22,13 @@ const BLACKLIST_COMPANIES = ["PT ALFA SCORPII", "ALFA SCORPII"];
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const MAX_NOTIFICATIONS_PER_RUN = 1000; // Increased to ensure no jobs are missed
+const ENABLE_DETAIL_ENRICHMENT = (process.env.ENABLE_DETAIL_ENRICHMENT || '').toLowerCase() === 'true';
 
-// Helper to check freshness (max 1 hari)
+// Helper to check freshness:
+// - return false only when the posting is explicitly old
+// - return true when posting is clearly new or date format is unknown (to avoid missing latest jobs)
 function isFresh(text) {
-    if (!text) return false;
+    if (!text) return true;
     const lower = text.toLowerCase();
 
     // "Baru saja", "menit yang lalu", "jam yang lalu" -> Always fresh
@@ -58,10 +52,10 @@ function isFresh(text) {
 
     // Check days
     // Matches "1 hari", "2 days", "3 hari yang lalu", "2d ago", etc.
-    const dayMatch = lower.match(/(\d+)\s*(hari|day|d\s*ago)/);
+    const dayMatch = lower.match(/(\d+)\s*(hari|days?|d\s*ago)/);
     if (dayMatch) {
         const days = parseInt(dayMatch[1]);
-        return days <= 1; // Limit 1 hari
+        return days <= 2; // Keep recent jobs up to 2 days to reduce misses
     }
 
     // "minggu" or "bulan" -> Old
@@ -69,7 +63,7 @@ function isFresh(text) {
         return false;
     }
 
-    return false; // Strict default
+    return true; // Unknown format: keep to avoid missing potentially fresh jobs
 }
 
 async function sendFonnteMessage(message) {
@@ -89,25 +83,51 @@ async function sendFonnteMessage(message) {
     }
 }
 
+function getTelegramConfig() {
+    const botToken = (process.env.TELEGRAM_BOT_TOKEN || '').trim();
+    const chatId = (process.env.TELEGRAM_CHAT_ID || '').trim();
+
+    if (!botToken || botToken === 'your_telegram_bot_token_here') {
+        console.error('Telegram config invalid: TELEGRAM_BOT_TOKEN belum diisi dengan token bot yang valid.');
+        return null;
+    }
+
+    if (!chatId || chatId === 'your_telegram_chat_id_here') {
+        console.error('Telegram config invalid: TELEGRAM_CHAT_ID belum diisi. Chat dulu bot kamu lalu ambil chat_id dari getUpdates.');
+        return null;
+    }
+
+    return { botToken, chatId };
+}
+
 async function sendTelegramMessage(message) {
-    const botToken = process.env.TELEGRAM_BOT_TOKEN || '8098362795:AAGEwJZ3mF00Jh8VQc4Q3ndh58Gn9f8O_hs';
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    const telegramConfig = getTelegramConfig();
+    if (!telegramConfig) return false;
+
+    const { botToken, chatId } = telegramConfig;
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
     try {
         const response = await axios.post(url, {
             chat_id: chatId,
             text: message,
             parse_mode: 'HTML'
         });
+
         console.log("Telegram message sent:", response.data.ok);
+        return true;
     } catch (error) {
-        console.error("Failed to send Telegram message:", error.message);
+        const errorDescription = error.response?.data?.description || error.message;
+        console.error("Failed to send Telegram message:", errorDescription);
+        return false;
     }
 }
 
 async function sendTelegramPhoto(imagePath, caption) {
-    const botToken = process.env.TELEGRAM_BOT_TOKEN || '8098362795:AAGEwJZ3mF00Jh8VQc4Q3ndh58Gn9f8O_hs';
-    const chatId = process.env.TELEGRAM_CHAT_ID;
+    const telegramConfig = getTelegramConfig();
+    if (!telegramConfig) return false;
+
+    const { botToken, chatId } = telegramConfig;
     
     try {
         const formData = new FormData();
@@ -122,9 +142,17 @@ async function sendTelegramPhoto(imagePath, caption) {
         const url = `https://api.telegram.org/bot${botToken}/sendPhoto`;
         const response = await fetch(url, { method: 'POST', body: formData });
         const data = await response.json();
+
+        if (!response.ok || !data.ok) {
+            console.error("Failed to send Telegram photo:", data.description || `HTTP ${response.status}`);
+            return false;
+        }
+
         console.log("Telegram photo sent:", data.ok);
+        return true;
     } catch (error) {
         console.error("Failed to send Telegram photo:", error.message);
+        return false;
     }
 }
 
@@ -140,6 +168,17 @@ async function sendNotification(message) {
 
 const fs = require('fs');
 const HISTORY_FILE = 'processed_jobs.json';
+
+function normalizeUniqueId(value = '') {
+    return String(value).toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+function buildUniqueId(job) {
+    const normalizedTitle = normalizeUniqueId(job.title);
+    const normalizedCompany = normalizeUniqueId(job.company);
+    const normalizedLink = normalizeUniqueId((job.link || '').split('#')[0].replace(/\/$/, ''));
+    return normalizedLink || `${normalizedTitle}-${normalizedCompany}`;
+}
 
 (async () => {
     console.log("Starting Scraper...");
@@ -343,6 +382,38 @@ const HISTORY_FILE = 'processed_jobs.json';
                                 });
                             }
                         });
+
+                        // Fallback extractor when JobStreet layout changes and no <article> data found
+                        if (extracted.length === 0) {
+                            const normalize = (value = "") => value.replace(/\s+/g, ' ').trim();
+                            const fallbackLinks = Array.from(document.querySelectorAll('a[data-automation="jobTitle"], a[href*="/job/"]'));
+                            const seenFallback = new Set();
+
+                            fallbackLinks.forEach(linkEl => {
+                                const href = linkEl.href || linkEl.getAttribute('href') || '';
+                                const title = normalize(linkEl.innerText || linkEl.textContent || "");
+                                if (!href || !title || title.length < 4) return;
+                                if (seenFallback.has(href)) return;
+                                seenFallback.add(href);
+
+                                const container = linkEl.closest('article, li, div');
+                                const containerText = container ? (container.innerText || '') : '';
+                                const rawLines = containerText.split('\n').map(line => normalize(line)).filter(Boolean);
+                                const company = rawLines.find(line =>
+                                    line !== title &&
+                                    line.length >= 3 &&
+                                    !/^\d+/.test(line) &&
+                                    !/hari|day|jam|hour|menit|minute|listed|new|gaji|salary|lokasi|location/i.test(line)
+                                ) || "Unknown Info";
+
+                                extracted.push({
+                                    title,
+                                    company,
+                                    link: href,
+                                    details: rawLines.join('\n') || title
+                                });
+                            });
+                        }
 
                         // Filter duplicates
                         const unique = [];
@@ -582,7 +653,12 @@ const HISTORY_FILE = 'processed_jobs.json';
                 console.log(`Found ${jobs.length} jobs on this page.`);
 
                 for (const job of jobs) {
-                    const uniqueId = `${job.title.trim().toLowerCase()}-${job.company.trim().toLowerCase()}`;
+                    if (allNewJobsToNotify.length >= MAX_NOTIFICATIONS_PER_RUN) {
+                        console.log(`Reached MAX_NOTIFICATIONS_PER_RUN (${MAX_NOTIFICATIONS_PER_RUN}). Stopping scrape loop.`);
+                        break;
+                    }
+
+                    const uniqueId = buildUniqueId(job);
                     const now = new Date();
                     const existingJob = processedJobs.get(uniqueId);
 
@@ -618,24 +694,16 @@ const HISTORY_FILE = 'processed_jobs.json';
                             lastNotified: now.toISOString()
                         });
 
-                        // Filter for Social Media and Marketing
-                        const targetKeywords = [
-                            'Social Media', 'Sosmed', 'Sosial Media', 'Marketing', 'Pemasaran', 'Digital Marketing', 
-                            'Content Creator', 'Kreator Konten', 'Copywriter', 'SEO', 'Ads', 'Campaign', 'Brand', 'Public Relation', 'PR', 'KOL'
-                        ].join('|');
-                        
-                        const isTargetJob = new RegExp(targetKeywords, 'i').test(job.title) || new RegExp(targetKeywords, 'i').test(job.details);
-
-                        if (!isTargetJob) {
-                            console.log(`Skipped (Not Social Media/Marketing): ${job.title} - ${job.company}`);
-                            continue;
-                        }
-
+                        // Semua URL sudah khusus IT/KOMPUTER. Tandai sebagai target agar tidak ada lowongan baru terlewat.
                         job.isTargetJob = true;
 
                         allNewJobsToNotify.push(job);
                         console.log(`Added to notification queue: ${job.title} at ${job.company}`);
                     }
+                }
+
+                if (allNewJobsToNotify.length >= MAX_NOTIFICATIONS_PER_RUN) {
+                    break;
                 }
 
             } catch (err) {
@@ -650,103 +718,91 @@ const HISTORY_FILE = 'processed_jobs.json';
             console.log("No new jobs found in this run. Sending update.");
             await sendNotification("BELUM ADA LOKER FI, KALAU SUDAH DI PANGGIL PERGI SAJA INTERVIEW FI, KALAU GAK. UDAH PASTI KAU GAGAL  ");
         } else {
-            // --- FETCH FULL JOB DESCRIPTIONS ---
-            console.log(`Fetching full HTML descriptions for ${allNewJobsToNotify.length} new jobs...`);
-            for (let i = 0; i < allNewJobsToNotify.length; i++) {
-                const job = allNewJobsToNotify[i];
-                try {
-                    const detailPage = await browser.newPage();
-                    // Let stylesheets and fonts load for better screenshot
-                    await detailPage.setRequestInterception(true);
-                    detailPage.on('request', (req) => {
-                        if(req.resourceType() === 'font'){
-                            req.abort();
-                        } else {
-                            req.continue();
-                        }
-                    });
-                    
-                    await detailPage.setViewport({ width: 1280, height: 1024 });
-                    await detailPage.goto(job.link, { waitUntil: 'domcontentloaded', timeout: 30000 });
-                    await delay(3000); // give SPA time to render
-                    
-                    let fullDescHtml = await detailPage.evaluate(() => {
-                        // Pintarnya: detail is mostly rendered as plain text blocks.
-                        if (location.hostname.includes('pintarnya.com') && location.pathname.includes('/lowongan/')) {
-                            const candidates = Array.from(document.querySelectorAll('main, article, section, div'));
-                            let bestEl = null;
-                            let bestScore = 0;
-
-                            candidates.forEach(node => {
-                                const text = (node.innerText || '').trim();
-                                if (!text.includes('Persyaratan Umum') || !text.includes('Deskripsi Pekerjaan')) return;
-
-                                const rect = node.getBoundingClientRect();
-                                const score = (rect.width * Math.min(rect.height, 5000)) + text.length;
-
-                                if (score > bestScore) {
-                                    bestScore = score;
-                                    bestEl = node;
-                                }
-                            });
-
-                            if (bestEl) return bestEl.innerText;
-                        }
-
-                        let el = document.querySelector('[data-automation="jobDescription"]');
-                        if (el) return el.innerHTML;
-                        
-                        el = document.querySelector('div[class*="JobDescription"]');
-                        if (el) return el.innerHTML;
-                        
-                        el = document.querySelector('.job-description');
-                        if (el) return el.innerHTML;
-                        
-                        el = document.querySelector('.entry-content');
-                        if (!el) el = document.querySelector('.post-content');
-                        if (el) return el.innerHTML;
-                        
-                        return null;
-                    });
-                    
-                    if (fullDescHtml && fullDescHtml.trim().length > 50) {
-                        job.details = fullDescHtml.trim();
-                    }
-
-                    // Take screenshot
+            if (ENABLE_DETAIL_ENRICHMENT) {
+                // --- FETCH FULL JOB DESCRIPTIONS ---
+                console.log(`Fetching full HTML descriptions for ${allNewJobsToNotify.length} new jobs...`);
+                for (let i = 0; i < allNewJobsToNotify.length; i++) {
+                    const job = allNewJobsToNotify[i];
+                    let detailPage = null;
                     try {
-                        const targetSelectors = [
-                            '[data-automation="jobDescription"]',
-                            'div[class*="JobDescription"]',
-                            '.job-description',
-                            '.entry-content',
-                            '.post-content',
-                            'article',
-                            'main'
-                        ];
-                        let element = null;
-                        for (const sel of targetSelectors) {
-                            element = await detailPage.$(sel);
-                            if (element) break;
+                        detailPage = await browser.newPage();
+                        // Let stylesheets and fonts load for better screenshot
+                        await detailPage.setRequestInterception(true);
+                        detailPage.on('request', (req) => {
+                            if(req.resourceType() === 'font'){
+                                req.abort();
+                            } else {
+                                req.continue();
+                            }
+                        });
+
+                        await detailPage.setViewport({ width: 1280, height: 1024 });
+                        await detailPage.goto(job.link, { waitUntil: 'domcontentloaded', timeout: 30000 });
+                        await delay(3000); // give SPA time to render
+
+                        let fullDescHtml = await detailPage.evaluate(() => {
+                            let el = document.querySelector('[data-automation="jobDescription"]');
+                            if (el) return el.innerHTML;
+
+                            el = document.querySelector('div[class*="JobDescription"]');
+                            if (el) return el.innerHTML;
+
+                            el = document.querySelector('.job-description');
+                            if (el) return el.innerHTML;
+
+                            el = document.querySelector('.entry-content');
+                            if (!el) el = document.querySelector('.post-content');
+                            if (el) return el.innerHTML;
+
+                            return null;
+                        });
+
+                        if (fullDescHtml && fullDescHtml.trim().length > 50) {
+                            job.details = fullDescHtml.trim();
                         }
 
-                        const imgPath = `screenshot_${i}.png`;
-                        if (job.link.includes('pintarnya.com/lowongan/')) {
-                            await detailPage.screenshot({ path: imgPath, fullPage: true });
-                        } else if (element) {
-                            await element.screenshot({ path: imgPath });
-                        } else {
-                            await detailPage.screenshot({ path: imgPath }); // Viewport screenshot
+                        // Take screenshot
+                        try {
+                            const targetSelectors = [
+                                '[data-automation="jobDescription"]',
+                                'div[class*="JobDescription"]',
+                                '.job-description',
+                                '.entry-content',
+                                '.post-content',
+                                'article',
+                                'main'
+                            ];
+                            let element = null;
+                            for (const sel of targetSelectors) {
+                                element = await detailPage.$(sel);
+                                if (element) break;
+                            }
+
+                            const imgPath = `screenshot_${i}.png`;
+                            const shouldUseFullPageScreenshot =
+                                job.link.includes('glints.com');
+
+                            if (shouldUseFullPageScreenshot) {
+                                await detailPage.screenshot({ path: imgPath, fullPage: true });
+                            } else if (element) {
+                                await element.screenshot({ path: imgPath });
+                            } else {
+                                await detailPage.screenshot({ path: imgPath }); // Viewport screenshot
+                            }
+                            job.screenshotPath = imgPath;
+                        } catch (ssErr) {
+                            console.log(`Failed to take screenshot for ${job.title}: ${ssErr.message}`);
                         }
-                        job.screenshotPath = imgPath;
-                    } catch (ssErr) {
-                        console.log(`Failed to take screenshot for ${job.title}: ${ssErr.message}`);
+                    } catch (err) {
+                        console.log(`Failed to fetch full description for ${job.title}: ${err.message}`);
+                    } finally {
+                        if (detailPage) {
+                            await detailPage.close();
+                        }
                     }
-
-                    await detailPage.close();
-                } catch (err) {
-                    console.log(`Failed to fetch full description for ${job.title}: ${err.message}`);
                 }
+            } else {
+                console.log("Skipping detail enrichment to prioritize speed. Set ENABLE_DETAIL_ENRICHMENT=true to enable screenshots.");
             }
 
             console.log(`Processing ${allNewJobsToNotify.length} new jobs for Telegram...`);
@@ -768,7 +824,7 @@ const HISTORY_FILE = 'processed_jobs.json';
             for (const job of allNewJobsToNotify) {
                 let caption = "";
                 if (job.isTargetJob) {
-                    caption = `🎯 <b>[LOKER MARKETING / SOCMED]</b> 🎯\n📱 <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>`;
+                    caption = `💻 <b>[LOKER IT / KOMPUTER]</b> 💻\n📱 <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>`;
                 } else {
                     caption = `✅ <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>`;
                 }
