@@ -1,7 +1,12 @@
-name: Glints Hourly Scraper
+name: TelJobs IT Scraper
 
 on:
-  workflow_dispatch: # Triggered by cron-job.org
+  workflow_dispatch:
+  schedule:
+    # GitHub cron runs in UTC. This pattern runs roughly every 1 hour 40 minutes.
+    - cron: '0 0,5,10,15,20 * * *'
+    - cron: '40 1,6,11,16,21 * * *'
+    - cron: '20 3,8,13,18,23 * * *'
 
 jobs:
   scrape:
