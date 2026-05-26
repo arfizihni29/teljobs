@@ -1,104 +1,5 @@
 [
   {
-    "id": "tenaga pengajar it-digikidz",
-    "title": "Tenaga Pengajar IT",
-    "company": "DIGIKIDZ",
-    "firstSeen": "2026-05-07T09:02:01.965Z",
-    "lastSeen": "2026-05-14T10:33:53.450Z",
-    "seenCount": 170,
-    "lastNotified": "2026-05-07T09:02:01.965Z"
-  },
-  {
-    "id": "relationship manager sme-pt bank permata, tbk",
-    "title": "Relationship Manager SME",
-    "company": "PT Bank Permata, Tbk",
-    "firstSeen": "2026-05-07T09:02:47.368Z",
-    "lastSeen": "2026-05-07T10:32:37.520Z",
-    "seenCount": 3,
-    "lastNotified": "2026-05-07T09:02:47.368Z"
-  },
-  {
-    "id": "hse specialist (plaza medan fair)-pt lippo malls indonesia",
-    "title": "HSE Specialist (Plaza Medan Fair)",
-    "company": "PT Lippo Malls Indonesia",
-    "firstSeen": "2026-05-07T09:02:47.369Z",
-    "lastSeen": "2026-05-07T10:32:37.520Z",
-    "seenCount": 3,
-    "lastNotified": "2026-05-07T09:02:47.369Z"
-  },
-  {
-    "id": "relationship manager priority-pt bank permata, tbk",
-    "title": "Relationship Manager Priority",
-    "company": "PT Bank Permata, Tbk",
-    "firstSeen": "2026-05-07T09:02:47.369Z",
-    "lastSeen": "2026-05-07T10:32:37.520Z",
-    "seenCount": 3,
-    "lastNotified": "2026-05-07T09:02:47.369Z"
-  },
-  {
-    "id": "supervisor medan-pt funworld prima",
-    "title": "SUPERVISOR MEDAN",
-    "company": "PT Funworld Prima",
-    "firstSeen": "2026-05-07T09:02:47.369Z",
-    "lastSeen": "2026-05-07T10:32:37.520Z",
-    "seenCount": 3,
-    "lastNotified": "2026-05-07T09:02:47.369Z"
-  },
-  {
-    "id": "marketing general insurance (medan)-pt asuransi msig indonesia",
-    "title": "Marketing General Insurance (Medan)",
-    "company": "PT Asuransi MSIG Indonesia",
-    "firstSeen": "2026-05-07T09:02:47.369Z",
-    "lastSeen": "2026-05-15T10:32:41.035Z",
-    "seenCount": 13,
-    "lastNotified": "2026-05-07T09:02:47.369Z"
-  },
-  {
-    "id": "techincal support-pt generate talenta indonesia",
-    "title": "Techincal Support",
-    "company": "PT Generate Talenta Indonesia",
-    "firstSeen": "2026-05-07T09:03:02.829Z",
-    "lastSeen": "2026-05-07T10:32:53.716Z",
-    "seenCount": 5,
-    "lastNotified": "2026-05-07T09:03:02.829Z"
-  },
-  {
-    "id": "cleaning service (resto rucci plus)-pt nusarasa pangan sehat",
-    "title": "Cleaning Service (Resto Rucci Plus)",
-    "company": "PT Nusarasa Pangan Sehat",
-    "firstSeen": "2026-05-07T09:03:02.829Z",
-    "lastSeen": "2026-05-07T10:32:53.716Z",
-    "seenCount": 5,
-    "lastNotified": "2026-05-07T09:03:02.829Z"
-  },
-  {
-    "id": "finance-pt shihlindo elektrik",
-    "title": "Finance",
-    "company": "PT Shihlindo Elektrik",
-    "firstSeen": "2026-05-07T09:03:02.829Z",
-    "lastSeen": "2026-05-07T10:32:53.716Z",
-    "seenCount": 4,
-    "lastNotified": "2026-05-07T09:03:02.829Z"
-  },
-  {
-    "id": "operator forklit / reactruck-labora duta anugrah",
-    "title": "OPERATOR FORKLIT / REACTRUCK",
-    "company": "Labora Duta Anugrah",
-    "firstSeen": "2026-05-07T09:03:18.812Z",
-    "lastSeen": "2026-05-11T06:36:23.345Z",
-    "seenCount": 80,
-    "lastNotified": "2026-05-07T09:03:18.812Z"
-  },
-  {
-    "id": "mandarin translator (onsite)-lokermedan",
-    "title": "MANDARIN TRANSLATOR (ONSITE)",
-    "company": "LokerMedan",
-    "firstSeen": "2026-05-07T09:03:42.081Z",
-    "lastSeen": "2026-05-13T10:33:26.218Z",
-    "seenCount": 14,
-    "lastNotified": "2026-05-07T09:03:42.081Z"
-  },
-  {
     "id": "chef cook (onsite)-lokermedan",
     "title": "CHEF COOK (ONSITE)",
     "company": "LokerMedan",
@@ -7654,8 +7555,8 @@
     "title": "instruktur robotik",
     "company": "PT Solusi Nusantara",
     "firstSeen": "2026-05-25T03:58:34.118Z",
-    "lastSeen": "2026-05-26T03:18:14.747Z",
-    "seenCount": 14,
+    "lastSeen": "2026-05-26T04:09:12.316Z",
+    "seenCount": 15,
     "lastNotified": "2026-05-25T03:58:34.118Z"
   },
   {
@@ -7663,8 +7564,8 @@
     "title": "IT Business Analyst",
     "company": "PT Iweka Digital Solusi",
     "firstSeen": "2026-05-25T03:58:34.118Z",
-    "lastSeen": "2026-05-26T03:18:14.747Z",
-    "seenCount": 14,
+    "lastSeen": "2026-05-26T04:09:12.317Z",
+    "seenCount": 15,
     "lastNotified": "2026-05-25T03:58:34.118Z"
   },
   {
@@ -7672,8 +7573,8 @@
     "title": "Staff IT",
     "company": "PT. Mest Indonesiy",
     "firstSeen": "2026-05-25T03:58:34.118Z",
-    "lastSeen": "2026-05-26T03:18:14.747Z",
-    "seenCount": 14,
+    "lastSeen": "2026-05-26T04:09:12.317Z",
+    "seenCount": 15,
     "lastNotified": "2026-05-25T03:58:34.118Z"
   },
   {
@@ -7681,8 +7582,8 @@
     "title": "Network Presales Engineer",
     "company": "PT. Mega Bintang Mas Indonesia",
     "firstSeen": "2026-05-25T03:58:34.119Z",
-    "lastSeen": "2026-05-26T03:18:14.747Z",
-    "seenCount": 14,
+    "lastSeen": "2026-05-26T04:09:12.317Z",
+    "seenCount": 15,
     "lastNotified": "2026-05-25T03:58:34.119Z"
   },
   {
@@ -8986,8 +8887,8 @@
     "title": "IT NETWORK ENGINEER",
     "company": "Medan Cakra",
     "firstSeen": "2026-05-26T03:18:14.747Z",
-    "lastSeen": "2026-05-26T03:18:14.747Z",
-    "seenCount": 1,
+    "lastSeen": "2026-05-26T04:09:12.316Z",
+    "seenCount": 2,
     "lastNotified": "2026-05-26T03:18:14.747Z"
   },
   {
@@ -8995,8 +8896,107 @@
     "title": "AI STAFFS",
     "company": "Pengiklan Anonim",
     "firstSeen": "2026-05-26T03:18:14.747Z",
-    "lastSeen": "2026-05-26T03:18:14.747Z",
-    "seenCount": 1,
+    "lastSeen": "2026-05-26T04:09:12.316Z",
+    "seenCount": 2,
     "lastNotified": "2026-05-26T03:18:14.747Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/sales-consultant/d7400126-b408-4bda-9633-9c1233a02043?utm_referrer=explore&traceinfo=17b4f15f-828a-4aa6-932c-bf91bd78d939",
+    "title": "Sales Consultant",
+    "company": "PT Teknologi Strategis Nusantara",
+    "firstSeen": "2026-05-26T04:08:01.968Z",
+    "lastSeen": "2026-05-26T04:08:01.968Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T04:08:01.968Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/branch-manager-edutech/da2959d0-5a89-4f99-8076-76fc88e385e3?utm_referrer=explore&traceinfo=17b4f15f-828a-4aa6-932c-bf91bd78d939",
+    "title": "Branch Manager (Edutech)",
+    "company": "Algorithmics Global FZE",
+    "firstSeen": "2026-05-26T04:08:01.969Z",
+    "lastSeen": "2026-05-26T04:08:01.969Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T04:08:01.969Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/sales-project/41a13fe5-5bc2-4c33-be49-fb513872488f?utm_referrer=explore&traceinfo=17b4f15f-828a-4aa6-932c-bf91bd78d939",
+    "title": "sales project",
+    "company": "PT Shihlindo Elektrik",
+    "firstSeen": "2026-05-26T04:08:01.969Z",
+    "lastSeen": "2026-05-26T04:08:01.969Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T04:08:01.969Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/chief-finance-accounting-tax/4d23f323-1738-43db-b0cd-1e4a97c7e9c5?utm_referrer=explore&traceinfo=17b4f15f-828a-4aa6-932c-bf91bd78d939",
+    "title": "Chief Finance Accounting Tax",
+    "company": "PT Perkasa Tehnik",
+    "firstSeen": "2026-05-26T04:08:01.969Z",
+    "lastSeen": "2026-05-26T04:08:01.969Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T04:08:01.969Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/technical-operation-padang-panjang/662f3c1c-b73b-49bf-b781-2b00bb3cdc88?utm_referrer=explore&traceinfo=08381ffc-91dd-445d-8f6d-106997c0abff",
+    "title": "Technical Operation Padang Panjang",
+    "company": "PT Cartenz Technology Indonesia",
+    "firstSeen": "2026-05-26T04:08:15.345Z",
+    "lastSeen": "2026-05-26T04:08:15.345Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T04:08:15.345Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/analis-laboratorium-konsultan-medan/8de3796c-42b5-4459-ad93-16823b6d86f3?utm_referrer=explore&traceinfo=16ee29dc-2bab-47d4-b4b0-393cd0c12016",
+    "title": "Analis Laboratorium Konsultan Medan",
+    "company": "PT. UBC Medical Indonesia",
+    "firstSeen": "2026-05-26T04:08:30.414Z",
+    "lastSeen": "2026-05-26T04:08:30.414Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T04:08:30.414Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/admin/4d287e57-12ad-41c2-84b2-915ef4ac226f?utm_referrer=explore&traceinfo=16ee29dc-2bab-47d4-b4b0-393cd0c12016",
+    "title": "Admin",
+    "company": "GMT Specialist Sparepart Handphone",
+    "firstSeen": "2026-05-26T04:08:30.414Z",
+    "lastSeen": "2026-05-26T04:08:30.414Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T04:08:30.414Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/hrd-recruitment/cad2d664-7cf3-4b4f-9248-41b9deee3490?utm_referrer=explore&traceinfo=16ee29dc-2bab-47d4-b4b0-393cd0c12016",
+    "title": "HRD Recruitment",
+    "company": "GMT Specialist Sparepart Handphone",
+    "firstSeen": "2026-05-26T04:08:30.414Z",
+    "lastSeen": "2026-05-26T04:08:30.414Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T04:08:30.414Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/full-stack-developer/340610fb-225e-46f7-8ac9-53919e818240?utm_referrer=explore&traceinfo=16ee29dc-2bab-47d4-b4b0-393cd0c12016",
+    "title": "Full Stack Developer",
+    "company": "Baby Milano",
+    "firstSeen": "2026-05-26T04:08:30.414Z",
+    "lastSeen": "2026-05-26T04:08:30.414Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T04:08:30.414Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/operator-sekolah/8ccfc837-9a58-431c-bbf8-971b96c10771?utm_referrer=explore&traceinfo=16ee29dc-2bab-47d4-b4b0-393cd0c12016",
+    "title": "Operator Sekolah",
+    "company": "MEDAN MONTESSORI SCHOOL & YORK ACADEMY",
+    "firstSeen": "2026-05-26T04:08:30.414Z",
+    "lastSeen": "2026-05-26T04:08:30.414Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T04:08:30.414Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/analis-laboratorium-konsultan-medan/8de3796c-42b5-4459-ad93-16823b6d86f3?traceinfo=16ee29dc-2bab-47d4-b4b0-393cd0c12016",
+    "title": "Analis Laboratorium Konsultan Medan",
+    "company": "PT. UBC Medical Indonesia",
+    "firstSeen": "2026-05-26T04:08:30.415Z",
+    "lastSeen": "2026-05-26T04:08:30.415Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T04:08:30.415Z"
   }
 ]
