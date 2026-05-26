@@ -22,7 +22,26 @@ const BLACKLIST_COMPANIES = ["PT ALFA SCORPII", "ALFA SCORPII"];
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const MAX_NOTIFICATIONS_PER_RUN = 1000; // Increased to ensure no jobs are missed
-const ENABLE_DETAIL_ENRICHMENT = (process.env.ENABLE_DETAIL_ENRICHMENT || '').toLowerCase() === 'true';
+// Default aktif agar setiap loker ada gambar preview.
+const ENABLE_DETAIL_ENRICHMENT = (process.env.ENABLE_DETAIL_ENRICHMENT || 'true').toLowerCase() !== 'false';
+const SCREENSHOT_VIEWPORT = { width: 1440, height: 2200 };
+const SCREENSHOT_PADDING = 20;
+const parsedScreenshotMaxHeight = Number.parseInt(process.env.SCREENSHOT_MAX_HEIGHT || '4200', 10);
+const SCREENSHOT_MAX_HEIGHT = Number.isFinite(parsedScreenshotMaxHeight) && parsedScreenshotMaxHeight > 1000
+    ? parsedScreenshotMaxHeight
+    : 4200;
+const SCREENSHOT_TARGET_SELECTORS = [
+    '[data-automation="jobDescription"]',
+    '[data-automation="job-details-page"]',
+    '[data-automation="jobDetailsPage"]',
+    'section[data-automation*="job"]',
+    'div[class*="JobDescription"]',
+    '.job-description',
+    '.entry-content',
+    '.post-content',
+    'article',
+    'main'
+];
 
 // Helper to check freshness:
 // - return false only when the posting is explicitly old
@@ -178,6 +197,236 @@ function buildUniqueId(job) {
     const normalizedCompany = normalizeUniqueId(job.company);
     const normalizedLink = normalizeUniqueId((job.link || '').split('#')[0].replace(/\/$/, ''));
     return normalizedLink || `${normalizedTitle}-${normalizedCompany}`;
+}
+
+function escapeHtml(value = '') {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+async function hideCommonOverlays(page) {
+    await page.evaluate(() => {
+        const overlaySelectors = [
+            '[id*="cookie"]',
+            '[class*="cookie"]',
+            '[id*="consent"]',
+            '[class*="consent"]',
+            '[class*="popup"]',
+            '[class*="modal"]',
+            '[class*="overlay"]',
+            '[class*="intercom"]',
+            '[class*="chat"]',
+            'iframe[title*="chat"]'
+        ];
+
+        for (const selector of overlaySelectors) {
+            const nodes = document.querySelectorAll(selector);
+            nodes.forEach((node) => {
+                node.style.setProperty('display', 'none', 'important');
+                node.style.setProperty('visibility', 'hidden', 'important');
+            });
+        }
+
+        const fixedElements = Array.from(document.querySelectorAll('body *')).filter((node) => {
+            const style = window.getComputedStyle(node);
+            if (!style) return false;
+            if (style.position !== 'fixed' && style.position !== 'sticky') return false;
+            const rect = node.getBoundingClientRect();
+            const likelyFloatingBar = rect.height > 0 && rect.height < window.innerHeight * 0.35;
+            return likelyFloatingBar && rect.width > window.innerWidth * 0.5;
+        });
+
+        fixedElements.forEach((node) => {
+            node.style.setProperty('display', 'none', 'important');
+            node.style.setProperty('visibility', 'hidden', 'important');
+        });
+    });
+}
+
+async function findBestScreenshotElement(page) {
+    const maxCandidatesPerSelector = 5;
+
+    for (const selector of SCREENSHOT_TARGET_SELECTORS) {
+        const handles = await page.$$(selector);
+        if (!handles.length) continue;
+
+        const limitedHandles = handles.slice(0, maxCandidatesPerSelector);
+        let bestHandle = null;
+        let bestArea = 0;
+
+        for (const handle of limitedHandles) {
+            const meta = await handle.evaluate((el) => {
+                const style = window.getComputedStyle(el);
+                if (!style || style.display === 'none' || style.visibility === 'hidden') return null;
+
+                const rect = el.getBoundingClientRect();
+                const textLength = (el.innerText || '').trim().length;
+                if (rect.width < 260 || rect.height < 140 || textLength < 40) return null;
+
+                return {
+                    area: rect.width * rect.height
+                };
+            });
+
+            if (!meta) {
+                await handle.dispose();
+                continue;
+            }
+
+            if (meta.area > bestArea) {
+                if (bestHandle) await bestHandle.dispose();
+                bestHandle = handle;
+                bestArea = meta.area;
+            } else {
+                await handle.dispose();
+            }
+        }
+
+        // Dispose remaining handles not used to avoid leaking references.
+        for (const handle of handles) {
+            if (bestHandle !== handle) {
+                try {
+                    await handle.dispose();
+                } catch {
+                    // Ignore dispose errors.
+                }
+            }
+        }
+
+        if (bestHandle) {
+            return bestHandle;
+        }
+    }
+
+    return null;
+}
+
+async function capturePreciseJobScreenshot(page, imgPath) {
+    await hideCommonOverlays(page);
+    const targetElement = await findBestScreenshotElement(page);
+
+    if (targetElement) {
+        try {
+            await targetElement.scrollIntoView();
+            await delay(600);
+
+            const box = await targetElement.boundingBox();
+            if (box && box.width > 0 && box.height > 0) {
+                const clip = {
+                    x: Math.max(0, box.x - SCREENSHOT_PADDING),
+                    y: Math.max(0, box.y - SCREENSHOT_PADDING),
+                    width: Math.max(1, box.width + (SCREENSHOT_PADDING * 2)),
+                    height: Math.max(1, Math.min(box.height + (SCREENSHOT_PADDING * 2), SCREENSHOT_MAX_HEIGHT))
+                };
+
+                await page.screenshot({
+                    path: imgPath,
+                    clip,
+                    type: 'png'
+                });
+                return true;
+            }
+        } finally {
+            await targetElement.dispose();
+        }
+    }
+
+    await page.screenshot({ path: imgPath, type: 'png' });
+    return false;
+}
+
+async function captureFallbackJobCard(browser, job, imgPath) {
+    let fallbackPage = null;
+    try {
+        fallbackPage = await browser.newPage();
+        await fallbackPage.setViewport({ width: 1300, height: 900 });
+
+        const safeTitle = escapeHtml(job.title || 'Lowongan Baru');
+        const safeCompany = escapeHtml(job.company || '-');
+        const safeLink = escapeHtml(job.link || '-');
+
+        await fallbackPage.setContent(`
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+    body {
+        margin: 0;
+        padding: 40px;
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        font-family: Arial, sans-serif;
+    }
+    .card {
+        width: 1180px;
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 28px 32px;
+        box-sizing: border-box;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 18px 40px rgba(2, 6, 23, 0.10);
+    }
+    .badge {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+        background: #dbeafe;
+    }
+    .title {
+        margin-top: 18px;
+        margin-bottom: 16px;
+        font-size: 38px;
+        line-height: 1.25;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .meta {
+        font-size: 26px;
+        line-height: 1.35;
+        color: #1f2937;
+        margin-bottom: 22px;
+    }
+    .link {
+        font-size: 20px;
+        line-height: 1.45;
+        color: #2563eb;
+        word-break: break-all;
+    }
+</style>
+</head>
+<body>
+    <div class="card" id="job-card">
+        <div class="badge">LOKER IT / KOMPUTER</div>
+        <div class="title">${safeTitle}</div>
+        <div class="meta">${safeCompany}</div>
+        <div class="link">${safeLink}</div>
+    </div>
+</body>
+</html>`, { waitUntil: 'domcontentloaded' });
+
+        const card = await fallbackPage.$('#job-card');
+        if (card) {
+            await card.screenshot({ path: imgPath, type: 'png' });
+        } else {
+            await fallbackPage.screenshot({ path: imgPath, type: 'png' });
+        }
+        return true;
+    } catch (error) {
+        console.log(`Fallback screenshot failed for ${job.title}: ${error.message}`);
+        return false;
+    } finally {
+        if (fallbackPage) {
+            await fallbackPage.close();
+        }
+    }
 }
 
 (async () => {
@@ -719,26 +968,24 @@ function buildUniqueId(job) {
             await sendNotification("BELUM ADA LOKER FI, KALAU SUDAH DI PANGGIL PERGI SAJA INTERVIEW FI, KALAU GAK. UDAH PASTI KAU GAGAL  ");
         } else {
             if (ENABLE_DETAIL_ENRICHMENT) {
-                // --- FETCH FULL JOB DESCRIPTIONS ---
-                console.log(`Fetching full HTML descriptions for ${allNewJobsToNotify.length} new jobs...`);
+                // --- FETCH FULL JOB DESCRIPTIONS + SCREENSHOTS ---
+                console.log(`Capturing detail screenshots for ${allNewJobsToNotify.length} new jobs...`);
                 for (let i = 0; i < allNewJobsToNotify.length; i++) {
                     const job = allNewJobsToNotify[i];
                     let detailPage = null;
+
                     try {
                         detailPage = await browser.newPage();
-                        // Let stylesheets and fonts load for better screenshot
-                        await detailPage.setRequestInterception(true);
-                        detailPage.on('request', (req) => {
-                            if(req.resourceType() === 'font'){
-                                req.abort();
-                            } else {
-                                req.continue();
-                            }
-                        });
+                        await detailPage.setViewport(SCREENSHOT_VIEWPORT);
+                        await detailPage.goto(job.link, { waitUntil: 'networkidle2', timeout: 45000 });
+                        await delay(2500); // Give dynamic content time to render
 
-                        await detailPage.setViewport({ width: 1280, height: 1024 });
-                        await detailPage.goto(job.link, { waitUntil: 'domcontentloaded', timeout: 30000 });
-                        await delay(3000); // give SPA time to render
+                        // Wait a bit for any known detail container to appear (no hard fail when selector is different)
+                        await detailPage.waitForFunction(
+                            (selectors) => selectors.some((selector) => document.querySelector(selector)),
+                            { timeout: 6000 },
+                            SCREENSHOT_TARGET_SELECTORS
+                        ).catch(() => null);
 
                         let fullDescHtml = await detailPage.evaluate(() => {
                             let el = document.querySelector('[data-automation="jobDescription"]');
@@ -761,48 +1008,31 @@ function buildUniqueId(job) {
                             job.details = fullDescHtml.trim();
                         }
 
-                        // Take screenshot
-                        try {
-                            const targetSelectors = [
-                                '[data-automation="jobDescription"]',
-                                'div[class*="JobDescription"]',
-                                '.job-description',
-                                '.entry-content',
-                                '.post-content',
-                                'article',
-                                'main'
-                            ];
-                            let element = null;
-                            for (const sel of targetSelectors) {
-                                element = await detailPage.$(sel);
-                                if (element) break;
-                            }
-
-                            const imgPath = `screenshot_${i}.png`;
-                            const shouldUseFullPageScreenshot =
-                                job.link.includes('glints.com');
-
-                            if (shouldUseFullPageScreenshot) {
-                                await detailPage.screenshot({ path: imgPath, fullPage: true });
-                            } else if (element) {
-                                await element.screenshot({ path: imgPath });
-                            } else {
-                                await detailPage.screenshot({ path: imgPath }); // Viewport screenshot
-                            }
-                            job.screenshotPath = imgPath;
-                        } catch (ssErr) {
-                            console.log(`Failed to take screenshot for ${job.title}: ${ssErr.message}`);
+                        const imgPath = `screenshot_${Date.now()}_${i}.png`;
+                        const usedPreciseElement = await capturePreciseJobScreenshot(detailPage, imgPath);
+                        job.screenshotPath = imgPath;
+                        if (!usedPreciseElement) {
+                            console.log(`Screenshot fallback (viewport): ${job.title}`);
                         }
                     } catch (err) {
-                        console.log(`Failed to fetch full description for ${job.title}: ${err.message}`);
+                        console.log(`Failed to fetch detail/screenshot for ${job.title}: ${err.message}`);
                     } finally {
                         if (detailPage) {
                             await detailPage.close();
                         }
                     }
+
+                    // Hard guarantee: try local fallback image so each loker can still be sent with a picture.
+                    if (!job.screenshotPath || !fs.existsSync(job.screenshotPath)) {
+                        const fallbackPath = `screenshot_fallback_${Date.now()}_${i}.png`;
+                        const fallbackCreated = await captureFallbackJobCard(browser, job, fallbackPath);
+                        if (fallbackCreated && fs.existsSync(fallbackPath)) {
+                            job.screenshotPath = fallbackPath;
+                        }
+                    }
                 }
             } else {
-                console.log("Skipping detail enrichment to prioritize speed. Set ENABLE_DETAIL_ENRICHMENT=true to enable screenshots.");
+                console.log("Detail enrichment disabled by env (ENABLE_DETAIL_ENRICHMENT=false).");
             }
 
             console.log(`Processing ${allNewJobsToNotify.length} new jobs for Telegram...`);
@@ -822,12 +1052,11 @@ function buildUniqueId(job) {
             let jobsInBatch = 0;
 
             for (const job of allNewJobsToNotify) {
-                let caption = "";
-                if (job.isTargetJob) {
-                    caption = `💻 <b>[LOKER IT / KOMPUTER]</b> 💻\n📱 <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>`;
-                } else {
-                    caption = `✅ <b>${job.title}</b>\n🏢 ${job.company}\n🔗 <a href="${job.link}">Buka Lowongan</a>`;
-                }
+                const safeTitle = escapeHtml(job.title);
+                const safeCompany = escapeHtml(job.company);
+                const safeLink = escapeHtml(job.link);
+                const label = job.isTargetJob ? '[LOKER IT / KOMPUTER]' : '[LOKER BARU]';
+                const caption = `${label}\n<b>${safeTitle}</b>\n${safeCompany}\n<a href="${safeLink}">Buka Lowongan</a>`;
 
                 if (job.screenshotPath) {
                     await sendTelegramPhoto(job.screenshotPath, caption);
@@ -880,3 +1109,4 @@ function buildUniqueId(job) {
         console.log("Scraper finished.");
     }
 })();
+
