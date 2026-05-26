@@ -10,10 +10,30 @@ const TARGET_URLS = [...new Set([
     "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&sortBy=LATEST",
     "https://glints.com/id/opportunities/jobs/explore?keyword=IT&country=ID&locationId=16cbbddf-c3fe-4ca5-a8ff-08ae52c9f085&locationName=Sumatera+Barat&lowestLocationLevel=2&sortBy=LATEST",
     "https://glints.com/id/opportunities/jobs/explore?keyword=KOMPUTER&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&sortBy=LATEST",
-    // JobStreet IT (Sumut & Sumbar)
+    "https://glints.com/id/opportunities/jobs/explore?keyword=KOMPUTER&country=ID&locationId=16cbbddf-c3fe-4ca5-a8ff-08ae52c9f085&locationName=Sumatera+Barat&lowestLocationLevel=2&sortBy=LATEST",
+    "https://glints.com/id/opportunities/jobs/explore?keyword=PROGRAMMER&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&sortBy=LATEST",
+    "https://glints.com/id/opportunities/jobs/explore?keyword=SOFTWARE&country=ID&locationId=ce7eb5cb-583a-40b2-b12b-0e17f59469e6&locationName=Sumatera+Utara&lowestLocationLevel=2&sortBy=LATEST",
+    // JobStreet IT (Sumut, Sumbar, Remote)
     "https://id.jobstreet.com/id/IT-jobs/in-Medan-Sumatera-Utara?sortmode=ListedDate&tags=new",
     "https://id.jobstreet.com/id/IT-jobs/in-Sumatera-Barat?sortmode=ListedDate&tags=new",
-    "https://id.jobstreet.com/id/IT-jobs-in-information-communication-technology/in-Sumatera-Utara?sortmode=ListedDate"
+    "https://id.jobstreet.com/id/IT-jobs-in-information-communication-technology/in-Sumatera-Utara?sortmode=ListedDate",
+    "https://id.jobstreet.com/id/jobs-in-information-communication-technology/in-Medan-Sumatera-Utara?sortmode=listeddate",
+    "https://id.jobstreet.com/id/jobs-in-information-communication-technology/in-Sumatera-Utara?sortmode=listeddate",
+    "https://id.jobstreet.com/id/jobs-in-information-communication-technology/in-Sumatera-Barat?sortmode=listeddate",
+    "https://id.jobstreet.com/id/jobs-in-information-communication-technology/remote?sortmode=listeddate",
+    // Loker.id IT
+    "https://www.loker.id/cari-lowongan-kerja?q=it&lokasi=sumatera-utara",
+    "https://www.loker.id/cari-lowongan-kerja?q=it&lokasi=sumatera-barat",
+    "https://www.loker.id/lokasi-pekerjaan/sumatera-utara",
+    "https://www.loker.id/lowongan-kerja/information-technology/sumatera-utara",
+    // Pintarnya IT/KOMPUTER
+    "https://pintarnya.com/q-it-l-kota-medan-lowongan",
+    "https://pintarnya.com/q-komputer-l-kota-medan-lowongan",
+    "https://pintarnya.com/q-software-l-kota-medan-lowongan",
+    "https://pintarnya.com/q-programmer-l-kota-medan-lowongan",
+    "https://pintarnya.com/q-teknisi-l-kota-medan-lowongan",
+    // Lokal aggregator
+    "https://lokermedan.co.id/"
 ])];
 
 const BLACKLIST_COMPANIES = ["PT ALFA SCORPII", "ALFA SCORPII"];
@@ -21,7 +41,17 @@ const BLACKLIST_COMPANIES = ["PT ALFA SCORPII", "ALFA SCORPII"];
 // Helper to delay execution
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-const MAX_NOTIFICATIONS_PER_RUN = 1000; // Increased to ensure no jobs are missed
+function getPositiveInt(value, fallback) {
+    const parsed = Number.parseInt(value, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+const MAX_NOTIFICATIONS_PER_RUN = getPositiveInt(process.env.MAX_NOTIFICATIONS_PER_RUN, 5000);
+const HISTORY_LIMIT = getPositiveInt(process.env.HISTORY_LIMIT, 5000);
+const FRESH_DAYS_LIMIT = getPositiveInt(process.env.FRESH_DAYS_LIMIT, 7);
+const LISTING_LOAD_MAX_ROUNDS = getPositiveInt(process.env.LISTING_LOAD_MAX_ROUNDS, 18);
+const LISTING_LOAD_IDLE_ROUNDS = getPositiveInt(process.env.LISTING_LOAD_IDLE_ROUNDS, 4);
+const LISTING_LOAD_DELAY_MS = getPositiveInt(process.env.LISTING_LOAD_DELAY_MS, 1200);
 // Default aktif agar setiap loker ada gambar preview.
 const ENABLE_DETAIL_ENRICHMENT = (process.env.ENABLE_DETAIL_ENRICHMENT || 'true').toLowerCase() !== 'false';
 const SCREENSHOT_VIEWPORT = { width: 1440, height: 2200 };
@@ -74,7 +104,7 @@ function isFresh(text) {
     const dayMatch = lower.match(/(\d+)\s*(hari|days?|d\s*ago)/);
     if (dayMatch) {
         const days = parseInt(dayMatch[1]);
-        return days <= 2; // Keep recent jobs up to 2 days to reduce misses
+        return days <= FRESH_DAYS_LIMIT;
     }
 
     // "minggu" or "bulan" -> Old
@@ -192,11 +222,138 @@ function normalizeUniqueId(value = '') {
     return String(value).toLowerCase().trim().replace(/\s+/g, ' ');
 }
 
+function sanitizeJobLink(link = '') {
+    const raw = String(link || '').trim();
+    if (!raw) return '';
+
+    try {
+        const parsedUrl = new URL(raw);
+        const trackingParams = [
+            'utm_source',
+            'utm_medium',
+            'utm_campaign',
+            'utm_term',
+            'utm_content',
+            'fbclid',
+            'gclid',
+            'ref',
+            'source',
+            'tracking_id',
+            'trackingId'
+        ];
+
+        for (const param of trackingParams) {
+            parsedUrl.searchParams.delete(param);
+        }
+
+        if (parsedUrl.hostname.includes('jobstreet.com') || parsedUrl.hostname.includes('glints.com')) {
+            parsedUrl.search = '';
+        }
+
+        return parsedUrl.toString().split('#')[0].replace(/\/$/, '');
+    } catch {
+        return raw.split('#')[0].replace(/\/$/, '');
+    }
+}
+
 function buildUniqueId(job) {
     const normalizedTitle = normalizeUniqueId(job.title);
     const normalizedCompany = normalizeUniqueId(job.company);
-    const normalizedLink = normalizeUniqueId((job.link || '').split('#')[0].replace(/\/$/, ''));
+    const normalizedLink = normalizeUniqueId(sanitizeJobLink(job.link));
     return normalizedLink || `${normalizedTitle}-${normalizedCompany}`;
+}
+
+async function countSelectorMatches(page, selector) {
+    if (!selector) return 0;
+    try {
+        return await page.$$eval(selector, (nodes) => nodes.length);
+    } catch {
+        return 0;
+    }
+}
+
+async function clickLoadMoreIfPresent(page) {
+    const clickedText = await page.evaluate(() => {
+        const keywords = [
+            "load more",
+            "show more",
+            "more jobs",
+            "lihat lebih",
+            "lowongan lainnya",
+            "muat lebih",
+            "tampilkan lebih",
+            "selanjutnya"
+        ];
+
+        const isVisible = (el) => {
+            const style = window.getComputedStyle(el);
+            if (!style) return false;
+            if (style.display === 'none' || style.visibility === 'hidden') return false;
+            const rect = el.getBoundingClientRect();
+            return rect.width > 0 && rect.height > 0;
+        };
+
+        const isDisabled = (el) => {
+            return (
+                el.hasAttribute('disabled') ||
+                el.getAttribute('aria-disabled') === 'true' ||
+                String(el.className || '').toLowerCase().includes('disabled')
+            );
+        };
+
+        const candidates = Array.from(document.querySelectorAll('button, a, [role="button"]'));
+        for (const el of candidates) {
+            if (!isVisible(el) || isDisabled(el)) continue;
+            const text = String(el.innerText || el.textContent || '').toLowerCase().replace(/\s+/g, ' ').trim();
+            if (!text) continue;
+
+            if (keywords.some((word) => text.includes(word))) {
+                el.click();
+                return text.slice(0, 100);
+            }
+        }
+
+        return null;
+    });
+
+    return clickedText;
+}
+
+async function loadListingsCompletely(page, { sourceName, itemSelector }) {
+    if (!itemSelector) return;
+
+    let highestCount = await countSelectorMatches(page, itemSelector);
+    let idleRounds = 0;
+
+    for (let round = 1; round <= LISTING_LOAD_MAX_ROUNDS; round++) {
+        await page.evaluate(() => {
+            const scrollDistance = Math.max(window.innerHeight * 0.95, 900);
+            window.scrollBy(0, scrollDistance);
+        });
+
+        const clickedLoadMoreText = await clickLoadMoreIfPresent(page);
+        await delay(LISTING_LOAD_DELAY_MS + (clickedLoadMoreText ? 400 : 0));
+
+        const currentCount = await countSelectorMatches(page, itemSelector);
+        if (currentCount > highestCount) {
+            highestCount = currentCount;
+            idleRounds = 0;
+        } else {
+            idleRounds += 1;
+        }
+
+        if (clickedLoadMoreText) {
+            console.log(`[${sourceName}] clicked load more: "${clickedLoadMoreText}"`);
+        }
+
+        if (idleRounds >= LISTING_LOAD_IDLE_ROUNDS) {
+            break;
+        }
+    }
+
+    // Return viewport to top to keep extraction deterministic across sites.
+    await page.evaluate(() => window.scrollTo(0, 0));
+    console.log(`[${sourceName}] listing stabilized at ~${highestCount} items`);
 }
 
 function escapeHtml(value = '') {
@@ -431,6 +588,7 @@ async function captureFallbackJobCard(browser, job, imgPath) {
 
 (async () => {
     console.log("Starting Scraper...");
+    console.log(`Config -> Sources: ${TARGET_URLS.length}, FreshDays: ${FRESH_DAYS_LIMIT}, MaxNotif: ${MAX_NOTIFICATIONS_PER_RUN}, HistoryLimit: ${HISTORY_LIMIT}`);
     const browser = await puppeteer.launch({
         headless: "new",
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null, // Use CI path or default
@@ -485,25 +643,11 @@ async function captureFallbackJobCard(browser, job, imgPath) {
                 if (url.includes('glints.com')) {
                     // --- GLINTS SCRAPING LOGIC ---
                     console.log("Detected Glints URL");
-                    // Scroll down to trigger lazy loading
-                    await page.evaluate(async () => {
-                        await new Promise((resolve) => {
-                            let totalHeight = 0;
-                            const distance = 100;
-                            const timer = setInterval(() => {
-                                const scrollHeight = document.body.scrollHeight;
-                                window.scrollBy(0, distance);
-                                totalHeight += distance;
-
-                                if (totalHeight >= scrollHeight - window.innerHeight || totalHeight > 5000) { // Limit scroll
-                                    clearInterval(timer);
-                                    resolve();
-                                }
-                            }, 100);
-                        });
+                    await loadListingsCompletely(page, {
+                        sourceName: 'Glints',
+                        itemSelector: 'a[href*="/opportunities/jobs/"]'
                     });
-
-                    await delay(2000);
+                    await delay(1200);
 
                     // Extract Job Cards
                     jobs = await page.evaluate(() => {
@@ -587,27 +731,11 @@ async function captureFallbackJobCard(browser, job, imgPath) {
                 } else if (url.includes('jobstreet')) {
                     // --- JOBSTREET SCRAPING LOGIC ---
                     console.log("Detected JobStreet URL");
-
-                    // JobStreet Infinite Scroll (Simple)
-                    await page.evaluate(async () => {
-                        await new Promise((resolve) => {
-                            let totalHeight = 0;
-                            const distance = 300;
-                            let retries = 0;
-                            const timer = setInterval(() => {
-                                const scrollHeight = document.body.scrollHeight;
-                                window.scrollBy(0, distance);
-                                totalHeight += distance;
-
-                                if (totalHeight >= scrollHeight || totalHeight > 10000) {
-                                    clearInterval(timer);
-                                    resolve();
-                                }
-                            }, 200);
-                        });
+                    await loadListingsCompletely(page, {
+                        sourceName: 'JobStreet',
+                        itemSelector: 'a[data-automation="jobTitle"], article'
                     });
-
-                    await delay(3000);
+                    await delay(1500);
 
                     jobs = await page.evaluate(() => {
                         const extracted = [];
@@ -678,7 +806,11 @@ async function captureFallbackJobCard(browser, job, imgPath) {
                 } else if (url.includes('lokermedan.co.id')) {
                     // --- LOKERMEDAN SCRAPING LOGIC ---
                     console.log("Detected LokerMedan URL");
-                    await delay(3000);
+                    await loadListingsCompletely(page, {
+                        sourceName: 'LokerMedan',
+                        itemSelector: 'a[href*="-loker-"]'
+                    });
+                    await delay(1000);
 
                     jobs = await page.evaluate(() => {
                         const extracted = [];
@@ -736,7 +868,11 @@ async function captureFallbackJobCard(browser, job, imgPath) {
                 } else if (url.includes('pintarnya.com')) {
                     // --- PINTARNYA SCRAPING LOGIC ---
                     console.log("Detected Pintarnya URL");
-                    await delay(4000);
+                    await loadListingsCompletely(page, {
+                        sourceName: 'Pintarnya',
+                        itemSelector: 'a[href*="/lowongan/"]'
+                    });
+                    await delay(1300);
 
                     jobs = await page.evaluate(() => {
                         const extracted = [];
@@ -796,7 +932,11 @@ async function captureFallbackJobCard(browser, job, imgPath) {
                 } else if (url.includes('loker.id')) {
                     // --- LOKER.ID SCRAPING LOGIC ---
                     console.log("Detected Loker.id URL");
-                    await delay(3000);
+                    await loadListingsCompletely(page, {
+                        sourceName: 'Loker.id',
+                        itemSelector: 'a[href$=".html"]'
+                    });
+                    await delay(1200);
 
                     jobs = await page.evaluate(() => {
                         const extracted = [];
@@ -901,10 +1041,22 @@ async function captureFallbackJobCard(browser, job, imgPath) {
 
                 console.log(`Found ${jobs.length} jobs on this page.`);
 
-                for (const job of jobs) {
+                for (const rawJob of jobs) {
                     if (allNewJobsToNotify.length >= MAX_NOTIFICATIONS_PER_RUN) {
                         console.log(`Reached MAX_NOTIFICATIONS_PER_RUN (${MAX_NOTIFICATIONS_PER_RUN}). Stopping scrape loop.`);
                         break;
+                    }
+
+                    const job = {
+                        title: String(rawJob.title || '').trim(),
+                        company: String(rawJob.company || 'Unknown Company').trim() || 'Unknown Company',
+                        link: sanitizeJobLink(rawJob.link),
+                        details: String(rawJob.details || '').trim()
+                    };
+
+                    if (!job.title || !job.link || !/^https?:\/\//i.test(job.link)) {
+                        console.log(`Skipped (Invalid Data): ${job.title || '(no-title)'} | ${job.link || '(no-link)'}`);
+                        continue;
                     }
 
                     const uniqueId = buildUniqueId(job);
@@ -1097,9 +1249,9 @@ async function captureFallbackJobCard(browser, job, imgPath) {
     } finally {
         await browser.close();
 
-        // Save history (Limit to last 1000 to prevent infinite growth)
+        // Save history (limit configurable to prevent infinite growth)
         try {
-            const historyArray = Array.from(processedJobs.values()).slice(-1000);
+            const historyArray = Array.from(processedJobs.values()).slice(-HISTORY_LIMIT);
             fs.writeFileSync(HISTORY_FILE, JSON.stringify(historyArray, null, 2));
             console.log("Updated job history saved.");
         } catch (e) {
