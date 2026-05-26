@@ -1,86 +1,5 @@
 [
   {
-    "id": "sales-dahlparfume - ahmad s***",
-    "title": "Sales",
-    "company": "Dahlparfume - Ahmad S***",
-    "firstSeen": "2026-05-07T07:02:58.516Z",
-    "lastSeen": "2026-05-07T09:03:02.830Z",
-    "seenCount": 5,
-    "lastNotified": "2026-05-07T07:02:58.516Z"
-  },
-  {
-    "id": "operator mesin-perseroan terbatas - badan berlina tbk",
-    "title": "operator mesin",
-    "company": "PERSEROAN TERBATAS - BADAN BERLINA TBK",
-    "firstSeen": "2026-05-07T07:03:13.065Z",
-    "lastSeen": "2026-05-07T10:36:25.297Z",
-    "seenCount": 24,
-    "lastNotified": "2026-05-07T07:03:13.065Z"
-  },
-  {
-    "id": "mandarin service consultant-lokermedan",
-    "title": "MANDARIN SERVICE CONSULTANT",
-    "company": "LokerMedan",
-    "firstSeen": "2026-05-07T07:03:35.024Z",
-    "lastSeen": "2026-05-13T10:33:26.218Z",
-    "seenCount": 20,
-    "lastNotified": "2026-05-07T07:03:35.024Z"
-  },
-  {
-    "id": "warehouse-perseroan terbatas - badan berlina tbk",
-    "title": "Warehouse",
-    "company": "PERSEROAN TERBATAS - BADAN BERLINA TBK",
-    "firstSeen": "2026-05-07T07:31:39.592Z",
-    "lastSeen": "2026-05-11T09:01:44.385Z",
-    "seenCount": 124,
-    "lastNotified": "2026-05-07T07:31:39.592Z"
-  },
-  {
-    "id": "staff keuangan-arya advertising",
-    "title": "STAFF KEUANGAN",
-    "company": "Arya Advertising",
-    "firstSeen": "2026-05-07T07:31:55.061Z",
-    "lastSeen": "2026-05-14T10:33:53.450Z",
-    "seenCount": 162,
-    "lastNotified": "2026-05-07T07:31:55.061Z"
-  },
-  {
-    "id": "telemarketing-pt. cipta dlimz indonesia",
-    "title": "Telemarketing",
-    "company": "PT. Cipta Dlimz Indonesia",
-    "firstSeen": "2026-05-07T07:32:48.454Z",
-    "lastSeen": "2026-05-07T10:32:53.716Z",
-    "seenCount": 8,
-    "lastNotified": "2026-05-07T07:32:48.454Z"
-  },
-  {
-    "id": "delivery-pt. cipta dlimz indonesia",
-    "title": "Delivery",
-    "company": "PT. Cipta Dlimz Indonesia",
-    "firstSeen": "2026-05-07T07:32:48.454Z",
-    "lastSeen": "2026-05-07T10:02:57.781Z",
-    "seenCount": 7,
-    "lastNotified": "2026-05-07T07:32:48.454Z"
-  },
-  {
-    "id": "senior arsitek-artee kontraktor",
-    "title": "SENIOR ARSITEK",
-    "company": "Artee Kontraktor",
-    "firstSeen": "2026-05-07T07:32:48.454Z",
-    "lastSeen": "2026-05-12T07:32:58.919Z",
-    "seenCount": 11,
-    "lastNotified": "2026-05-07T07:32:48.454Z"
-  },
-  {
-    "id": "supir-pt. cipta dlimz indonesia",
-    "title": "Supir",
-    "company": "PT. Cipta Dlimz Indonesia",
-    "firstSeen": "2026-05-07T07:32:48.454Z",
-    "lastSeen": "2026-05-07T10:02:57.781Z",
-    "seenCount": 6,
-    "lastNotified": "2026-05-07T07:32:48.454Z"
-  },
-  {
     "id": "sales representative (jambi)-pt. citra insan mandiri",
     "title": "Sales Representative (JAMBI)",
     "company": "PT. Citra Insan Mandiri",
@@ -7852,8 +7771,8 @@
     "title": "instruktur robotik",
     "company": "PT Solusi Nusantara",
     "firstSeen": "2026-05-25T03:58:34.118Z",
-    "lastSeen": "2026-05-25T22:38:51.477Z",
-    "seenCount": 12,
+    "lastSeen": "2026-05-26T00:17:48.706Z",
+    "seenCount": 13,
     "lastNotified": "2026-05-25T03:58:34.118Z"
   },
   {
@@ -7861,8 +7780,8 @@
     "title": "IT Business Analyst",
     "company": "PT Iweka Digital Solusi",
     "firstSeen": "2026-05-25T03:58:34.118Z",
-    "lastSeen": "2026-05-25T22:38:51.477Z",
-    "seenCount": 12,
+    "lastSeen": "2026-05-26T00:17:48.706Z",
+    "seenCount": 13,
     "lastNotified": "2026-05-25T03:58:34.118Z"
   },
   {
@@ -7870,8 +7789,8 @@
     "title": "Staff IT",
     "company": "PT. Mest Indonesiy",
     "firstSeen": "2026-05-25T03:58:34.118Z",
-    "lastSeen": "2026-05-25T22:38:51.477Z",
-    "seenCount": 12,
+    "lastSeen": "2026-05-26T00:17:48.706Z",
+    "seenCount": 13,
     "lastNotified": "2026-05-25T03:58:34.118Z"
   },
   {
@@ -7879,8 +7798,8 @@
     "title": "Network Presales Engineer",
     "company": "PT. Mega Bintang Mas Indonesia",
     "firstSeen": "2026-05-25T03:58:34.119Z",
-    "lastSeen": "2026-05-25T22:38:51.477Z",
-    "seenCount": 12,
+    "lastSeen": "2026-05-26T00:17:48.706Z",
+    "seenCount": 13,
     "lastNotified": "2026-05-25T03:58:34.119Z"
   },
   {
@@ -8998,5 +8917,86 @@
     "lastSeen": "2026-05-25T22:38:06.087Z",
     "seenCount": 1,
     "lastNotified": "2026-05-25T22:38:06.087Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/branch-manager-edutech/da2959d0-5a89-4f99-8076-76fc88e385e3?utm_referrer=explore&traceinfo=cfc143ed-97ce-4494-a7d9-7144f25b5604",
+    "title": "Branch Manager (Edutech)",
+    "company": "Algorithmics Global FZE",
+    "firstSeen": "2026-05-26T00:16:35.622Z",
+    "lastSeen": "2026-05-26T00:16:35.622Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T00:16:35.622Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/sales-project/41a13fe5-5bc2-4c33-be49-fb513872488f?utm_referrer=explore&traceinfo=cfc143ed-97ce-4494-a7d9-7144f25b5604",
+    "title": "sales project",
+    "company": "PT Shihlindo Elektrik",
+    "firstSeen": "2026-05-26T00:16:35.623Z",
+    "lastSeen": "2026-05-26T00:16:35.623Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T00:16:35.623Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/chief-finance-accounting-tax/4d23f323-1738-43db-b0cd-1e4a97c7e9c5?utm_referrer=explore&traceinfo=cfc143ed-97ce-4494-a7d9-7144f25b5604",
+    "title": "Chief Finance Accounting Tax",
+    "company": "PT Perkasa Tehnik",
+    "firstSeen": "2026-05-26T00:16:35.623Z",
+    "lastSeen": "2026-05-26T00:16:35.623Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T00:16:35.623Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/technical-operation-padang-panjang/662f3c1c-b73b-49bf-b781-2b00bb3cdc88?utm_referrer=explore&traceinfo=a9a640ab-688e-41eb-8297-484a18ebdfce",
+    "title": "Technical Operation Padang Panjang",
+    "company": "PT Cartenz Technology Indonesia",
+    "firstSeen": "2026-05-26T00:16:48.699Z",
+    "lastSeen": "2026-05-26T00:16:48.699Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T00:16:48.699Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/admin/4d287e57-12ad-41c2-84b2-915ef4ac226f?utm_referrer=explore&traceinfo=2b8ef2ac-0326-4fa4-af76-0b20c36d5864",
+    "title": "Admin",
+    "company": "GMT Specialist Sparepart Handphone",
+    "firstSeen": "2026-05-26T00:17:04.115Z",
+    "lastSeen": "2026-05-26T00:17:04.115Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T00:17:04.115Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/hrd-recruitment/cad2d664-7cf3-4b4f-9248-41b9deee3490?utm_referrer=explore&traceinfo=2b8ef2ac-0326-4fa4-af76-0b20c36d5864",
+    "title": "HRD Recruitment",
+    "company": "GMT Specialist Sparepart Handphone",
+    "firstSeen": "2026-05-26T00:17:04.115Z",
+    "lastSeen": "2026-05-26T00:17:04.115Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T00:17:04.115Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/full-stack-developer/340610fb-225e-46f7-8ac9-53919e818240?utm_referrer=explore&traceinfo=2b8ef2ac-0326-4fa4-af76-0b20c36d5864",
+    "title": "Full Stack Developer",
+    "company": "Baby Milano",
+    "firstSeen": "2026-05-26T00:17:04.115Z",
+    "lastSeen": "2026-05-26T00:17:04.115Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T00:17:04.115Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/operator-sekolah/8ccfc837-9a58-431c-bbf8-971b96c10771?utm_referrer=explore&traceinfo=2b8ef2ac-0326-4fa4-af76-0b20c36d5864",
+    "title": "Operator Sekolah",
+    "company": "MEDAN MONTESSORI SCHOOL & YORK ACADEMY",
+    "firstSeen": "2026-05-26T00:17:04.115Z",
+    "lastSeen": "2026-05-26T00:17:04.115Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T00:17:04.115Z"
+  },
+  {
+    "id": "https://glints.com/id/opportunities/jobs/admin/4d287e57-12ad-41c2-84b2-915ef4ac226f?traceinfo=2b8ef2ac-0326-4fa4-af76-0b20c36d5864",
+    "title": "Admin",
+    "company": "GMT Specialist Sparepart Handphone",
+    "firstSeen": "2026-05-26T00:17:04.115Z",
+    "lastSeen": "2026-05-26T00:17:04.115Z",
+    "seenCount": 1,
+    "lastNotified": "2026-05-26T00:17:04.115Z"
   }
 ]
